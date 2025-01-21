@@ -1,20 +1,22 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
+import vue from '@vitejs/plugin-vue';
+// import { createApp } from 'vue/dist/vue.esm-bundler.js'
 
 export default defineConfig({
     plugins: [
         laravel({
-            input: ['resources/sass/app.scss', 'resources/js/app.js'],
+            input: [
+                'resources/sass/app.scss',
+                'resources/js/app.js',
+            ],
             refresh: true,
         }),
+        vue(),
     ],
     resolve: {
-        alias: [
-            {
-                // this is required for the SCSS modules
-                find: /^~(.*)$/,
-                replacement: '$1',
-            },
-        ],
-    },
+        alias: {
+          'vue': 'vue/dist/vue.esm-bundler.js'
+        }
+      }
 });
