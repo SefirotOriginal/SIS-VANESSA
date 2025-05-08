@@ -57,4 +57,12 @@ class User extends Authenticatable
             ->map(fn (string $name) => Str::of($name)->substr(0, 1))
             ->implode('');
     }
+
+    public function adminlte_image(){
+        return 'https://static1.e621.net/data/60/7b/607bca723c9eb9f877e9fd43419c56a3.png';
+    }
+
+    public function adminlte_desc(){
+        return 'Administrador';
+    }
 }
