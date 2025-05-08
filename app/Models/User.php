@@ -59,7 +59,7 @@ class User extends Authenticatable
     }
 
     public function adminlte_image(){
-        return 'https://static1.e621.net/data/60/7b/607bca723c9eb9f877e9fd43419c56a3.png';
+        return 'https://gravatar.com/avatar/8b5b92eddf8bbfbd22bbe20343c6ac2e?s=200&d=retro&r=x';
     }
 
     public function adminlte_desc(){
