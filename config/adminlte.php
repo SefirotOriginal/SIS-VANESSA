@@ -306,6 +306,7 @@ return [
             'url' => '',
             'topnav_right' => true,
         ],
+        
         // Sección de VENTAS
         [
             'text' => 'Ventas',
@@ -319,7 +320,7 @@ return [
                 [
                     'text' => 'Consultar ventas',
                     'icon' => 'far fa-fw fa-bookmark',
-                    'url' => 'ventas/consultasVenta',
+                    'route' => 'ventas.consulta',
                 ],
             ],
         ],
@@ -328,7 +329,7 @@ return [
         [
             'text' => 'Productos',
             'icon' => 'fas fa-fw fa-boxes',
-            'url' => 'productos/consultasProducto',
+            'route' => 'productos.consulta',
         ],
 
         // Sección de USUARIOS
@@ -338,11 +339,13 @@ return [
             'submenu' => [
                 [
                     'text' => 'Consultar usuarios',
-                    'url' => 'reportes/ventas',
+                    'icon' => 'fas fa-fw fa-user-friends',
+                    'route' => 'usuarios.consulta',
                 ],
                 [
                     'text' => 'Consultar roles',
-                    'url' => 'reportes/productos',
+                    'icon' => 'fas fa-fw fa-id-badge',
+                    'route' => 'roles.consulta',
                 ],
             ],
         ],
@@ -351,7 +354,14 @@ return [
         [
             'text' => 'Reportes',
             'icon' => 'fas fa-fw fa-chart-pie',
-            'url' => 'reportes',
+            'route' => 'reportes.consulta',
+        ],
+
+        // Sección de CORTE DE CAJA
+        [
+            'text' => 'Corte de caja',
+            'icon' => 'fas fa-cash-register',
+            'route' => 'cortes.consulta',
         ],
 
         // Separador visual

@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Consulta de ventas')
+@section('title', 'Consultar Ventas')
 
 @section('content_header')
 <h1><b>Consulta de ventas</b></h1>
@@ -31,7 +31,7 @@
                         <td>Paracetamol 450g (x1), Botella de agua 600ml (x1)</td>
                         <td>$45.00</td>
                         <td>
-                            <a href="{{ route('ventas.detalles') }}" class="btn btn-info btn-sm">
+                            <a href="detalles" class="btn btn-info btn-sm">
                                 <i class="fas fa-eye"></i>
                             </a>
                         </td>

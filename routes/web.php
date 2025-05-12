@@ -2,26 +2,46 @@
 
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
+use App\Http\Controllers\VentasController;
+use App\Http\Controllers\ProductosController;
+use App\Http\Controllers\UsuariosController;
+use App\Http\Controllers\RolesController;
+use App\Http\Controllers\ReportesController;
+use App\Http\Controllers\CortesController;
 
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-Route::get('ventas/consultasVenta', function () {
-    return view('ventas.consulta');
-})->name('ventas.consulta');
+//Sección de Ventas
+Route::get('ventas/consultas', [VentasController::class, 'consultas'])->name('ventas.consulta');
+Route::get('ventas/detalles', [VentasController::class, 'detalles'])->name('ventas.detalles');
+Route::get('ventas/devoluciones', [VentasController::class, 'devoluciones'])->name('ventas.devoluciones');
 
-Route::get('ventas/detallesVenta', function () {
-    return view('ventas.detalles');
-})->name('ventas.detalles');
+//Sección de Productos
+Route::get('productos/creacion', [ProductosController::class, 'creacion'])->name('productos.creacion');
+Route::get('productos/consultas', [ProductosController::class, 'consultas'])->name('productos.consulta');
+Route::get('productos/edicion', [ProductosController::class, 'edicion'])->name('productos.edicion');
 
-Route::get('ventas/devolucionesVenta', function () {
-    return view('ventas.devoluciones');
-})->name('ventas.devoluciones');
+//Sección de Usuarios
+Route::get('usuarios/creacion', [UsuariosController::class, 'creacion'])->name('usuarios.creacion');
+Route::get('usuarios/consultas', [UsuariosController::class, 'consultas'])->name('usuarios.consulta');
+Route::get('usuarios/edicion', [UsuariosController::class, 'edicion'])->name('usuarios.edicion');
 
-Route::get('productos/consultasProducto', function () {
-    return view('productos.consulta');
-})->name('productos.consulta');
+//Sección de Roles
+Route::get('roles/creacion', [RolesController::class, 'creacion'])->name('roles.creacion');
+Route::get('roles/consultas', [RolesController::class, 'consultas'])->name('roles.consulta');
+Route::get('roles/edicion', [RolesController::class, 'edicion'])->name('roles.edicion');
+
+//Sección de Reportes
+Route::get('reportes/creacion', [ReportesController::class, 'creacion'])->name('reportes.creacion');
+Route::get('reportes/consultas', [ReportesController::class, 'consultas'])->name('reportes.consulta');
+Route::get('reportes/detalles', [ReportesController::class, 'detalles'])->name('reportes.detalles');
+
+//Sección de Cortes de caja
+Route::get('cortes/creacion', [CortesController::class, 'creacion'])->name('cortes.creacion');
+Route::get('cortes/consultas', [CortesController::class, 'consultas'])->name('cortes.consulta');
+Route::get('cortes/detalles', [CortesController::class, 'detalles'])->name('cortes.detalles');
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])

@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Devolución de venta')
+@section('title', 'Devolver Venta')
 
 @section('content_header')
 <h1><b>Devolución de venta</b></h1>
@@ -134,7 +134,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Redirige a la ruta deseada
-                    window.location.href = 'consultasVenta'; // Cambia esta URL por la que necesites
+                    window.location.href = 'consultas';
                 }
             });
         }

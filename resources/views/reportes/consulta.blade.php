@@ -1,93 +1,51 @@
 @extends('adminlte::page')
 
-@section('title', 'Consultar Productos')
+@section('title', 'Consultar Reportes')
 
 @section('content_header')
-<h1><b>Consulta de productos</b></h1>
+<h1><b>Consulta de reportes</b></h1>
 @stop
 
 @section('content')
 <div class="card shadow">
 <div class="card-body">
     <div class="row mt-4">
-        <!-- Tabla de detalles de venta -->
+        <!-- Tabla de detalles de reportes -->
          <div class="table-responsive">
-            <table id="ventaConsulta" class="table table-striped" style="width:100%">
+            <table id="reporteConsulta" class="table table-striped" style="width:100%">
                 <thead class="custom-header">
                     <tr>
-                        <th>Nombre</th>
-                        <th>Concentración</th>
-                        <th>Presentación</th>
-                        <th>Usos comúnes</th>
-                        <th>Marca</th>
-                        <th>Categoria</th>
-                        <th>Proovedor</th>
-                        <th>Stock</th>
-                        <th>Lote</th>
-                        <th>Fecha de caducidad</th>
-                        <th>Precio al público</th>
+                        <th>Código</th>
+                        <th>Fecha inicial</th>
+                        <th>Fecha final</th>
+                        <th>Tipo</th>
                         <th>Opciones</th>
                     </tr>
                 </thead>
-                <tbody id="detalleVenta">
+                <tbody id="detalleReporte">
                     <!-- Aquí irían las filas dinámicas -->
                     <tr>
-                        <td>Paracetamol</td>
-                        <td>500 mg</td>
-                        <td>Caja con 20 tabletas</td>
-                        <td>Alivio de dolor, fiebre</td>
-                        <td>Genéricos S.A.</td>
-                        <td>Analgésico</td>
-                        <td>FarmaDistribuidora</td>
-                        <td>150</td>
-                        <td>L12345</td>
-                        <td>2026-05-15</td>
-                        <td>$45.00</td>
+                        <td>0001</td>
+                        <td>2025-01-01</td>
+                        <td>2025-02-01</td>
+                        <td>Ventas</td>
                         <td>
-                            <a href="{{ route('productos.edicion') }}" class="btn btn-info btn-sm">
-                                <i class="fas fa-pen"></i>
+                            <a href="detalles" class="btn btn-info btn-sm">
+                                <i class="fas fa-eye"></i>
                             </a>
                             <button onclick="alertaBorrar()" type="submit" class="btn btn-danger btn-sm">
                                 <i class="fas fa-trash"></i>
                             </button>
-                        </td>
+                        </td>       
                     </tr>
                     <tr>
-                        <td>Ibuprofeno</td>
-                        <td>400  mg</td>
-                        <td>Caja con 30 tabletas</td>
-                        <td>Antiinflamatorio, analgésico</td>
-                        <td>SaludPlus</td>
-                        <td>Antiinflamatorio</td>
-                        <td>Medicamentos MX</td>
-                        <td>200</td>
-                        <td>L67890</td>
-                        <td>2025-12-10</td>
-                        <td>$35.00</td>
+                        <td>0002</td>
+                        <td>2025-03-01</td>
+                        <td>2025-04-01</td>
+                        <td>Ventas</td>
                         <td>
-                            <a href="{{ route('productos.edicion') }}" class="btn btn-info btn-sm">
-                                <i class="fas fa-pen"></i>
-                            </a>
-                            <button onclick="alertaBorrar()" type="submit" class="btn btn-danger btn-sm">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Loratadina</td>
-                        <td>10 mg</td>
-                        <td>Caja con 10 tabletas</td>
-                        <td>Tratamiento de alergias</td>
-                        <td>Alergex</td>
-                        <td>Antihistamínico</td>
-                        <td>Proveeduría Médica</td>
-                        <td>120</td>
-                        <td>L54321</td>
-                        <td>2027-03-20</td>
-                        <td>$30.00</td>
-                        <td>
-                            <a href="{{ route('productos.edicion') }}" class="btn btn-info btn-sm">
-                                <i class="fas fa-pen"></i>
+                            <a href="detalles" class="btn btn-info btn-sm">
+                                <i class="fas fa-eye"></i>
                             </a>
                             <button onclick="alertaBorrar()" type="submit" class="btn btn-danger btn-sm">
                                 <i class="fas fa-trash"></i>
@@ -141,7 +99,7 @@
         console.log("Hi, I'm using the Laravel-AdminLTE package!");
     </script>
     <script>
-        new DataTable('#ventaConsulta', {
+        new DataTable('#reporteConsulta', {
             language: {
                 url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
             },
@@ -152,9 +110,9 @@
                     toolbar.className = 'd-flex align-items-center mb-3';
                     // Create the "Create Product" button
                     let createButton = document.createElement('a');
-                    createButton.href = "{{ route('productos.creacion') }}";
+                    createButton.href = "creacion";
                     createButton.className = 'btn btn-primary ml-2';
-                    createButton.innerHTML = '<i class="fas fa-plus-circle me-2"></i>Crear producto';
+                    createButton.innerHTML = '<i class="fas fa-plus-circle me-2"></i>Crear reporte';
                     // Append the button to the toolbar
                     toolbar.appendChild(createButton);
                     return toolbar; // Return the custom toolbar
@@ -198,7 +156,7 @@
             if (result.isConfirmed) {
                 Swal.fire({
                 title: "¡Eliminado!",
-                text: "El producto se ha eliminado de la tabla.",
+                text: "El reporte se ha eliminado de la tabla.",
                 icon: "success"
                 });
             }

@@ -1,0 +1,158 @@
+@extends('adminlte::page')
+
+@section('title', 'Consultar Cortes de Caja')
+
+@section('content_header')
+<h1><b>Consulta de cortes de caja</b></h1>
+@stop
+
+@section('content')
+<div class="card shadow">
+    <div class="card-body">
+        <div class="row mt-4">
+            <!-- Tabla de detalles de venta -->
+            <div class="table-responsive">
+                <table id="corteConsulta" class="table table-striped" style="width:100%">
+                    <thead class="custom-header">
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Monto inicial</th>
+                            <th>Ventas</th>
+                            <th>Ingresos Extra</th>
+                            <th>Egresos</th>
+                            <th>Total en Caja</th>
+                            <th>Opciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detalleCorte">
+                        <!-- Aquí irían las filas dinámicas -->
+                        <tr>
+                            <td>11-05-2025</td>
+                            <td>19:00</td>
+                            <td>$1,000.00</td>
+                            <td>$3,540.50</td>
+                            <td>$200.00</td>
+                            <td>$150.00</td>
+                            <td>$4,590.50</td>
+                            <td>
+                                <a href="detalles" class="btn btn-info btn-sm">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <button onclick="alertaBorrar()" type="submit" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@stop
+
+@section('css')
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.css">
+    <style>
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+        .content-wrapper{
+            background-color:#f1f1f1;
+        }
+        .card-body{
+            background-color:#ffffff;
+        }
+        .custom-header {
+            background-color: #0077B6;
+            color: white;
+        }
+    </style>
+<style>
+    .custom-header th {
+        white-space: nowrap; /* Evita que el texto se divida */
+    }
+    .card-body {
+        padding-top: 0; /* Elimina el padding superior */
+        padding-bottom: 1rem; /* Ajusta el padding inferior si es necesario */
+    }
+</style>
+@stop
+
+@section('js')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.js"> </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"> </script>
+<script src="https://cdn.datatables.net/2.2.2/js/dataTables.js"> </script>
+<script src="https://cdn.datatables.net/2.2.2/js/dataTables.bootstrap5.js"> </script>
+<script>
+    console.log("Hi, I'm using the Laravel-AdminLTE package!");
+</script>
+<script>
+    new DataTable('#corteConsulta', {
+        language: {
+            url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+        },
+        layout: {
+            top2End: function () {
+                // Create a div for the toolbar
+                let toolbar = document.createElement('div');
+                toolbar.className = 'd-flex align-items-center mb-3';
+                // Create the "Create Product" button
+                let createButton = document.createElement('a');
+                createButton.href = "creacion";
+                createButton.className = 'btn btn-primary ml-2';
+                createButton.innerHTML = '<i class="fas fa-plus-circle me-2"></i>Realizar corte de caja';
+                // Append the button to the toolbar
+                toolbar.appendChild(createButton);
+                return toolbar; // Return the custom toolbar
+            },
+            topStart: 'search',
+            topEnd: null,
+            bottomStart: [
+                {
+                    paging: {
+                        div: {
+                            className: 'layout-start',
+                            text: 'top2 A'
+                        }
+                    }
+                },
+                {
+                    info: {
+                        div: {
+                            className: 'layout-full',
+                            text: 'top2 B'
+                        }
+                    }
+                }
+            ],
+            bottomEnd: null
+        }
+    });
+</script>
+<script>
+    function alertaBorrar() {
+        Swal.fire({
+        title: "¿Estás seguro?",
+        text: "¡Esta acción no se podrá revertir!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Sí, ¡Eliminar!",
+        cancelButtonText: "Cancelar"
+        }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+            title: "¡Eliminado!",
+            text: "El corte de caja se ha eliminado de la tabla.",
+            icon: "success"
+            });
+        }
+        });
+    }
+</script>
+@stop
