@@ -18,10 +18,16 @@ Route::get('ventas/consultas', [VentasController::class, 'consultas'])->name('ve
 Route::get('ventas/detalles', [VentasController::class, 'detalles'])->name('ventas.detalles');
 Route::get('ventas/devoluciones', [VentasController::class, 'devoluciones'])->name('ventas.devoluciones');
 
-//Sección de Productos
-Route::get('productos/creacion', [ProductosController::class, 'creacion'])->name('productos.creacion');
+//Consulta de Productos
 Route::get('productos/consultas', [ProductosController::class, 'consultas'])->name('productos.consulta');
-Route::get('productos/edicion', [ProductosController::class, 'edicion'])->name('productos.edicion');
+//Creación
+Route::get('productos/creacion', [ProductosController::class, 'creacion'])->name('productos.creacion');
+Route::post('productos', [ProductosController::class, 'crear'])->name('productos.crear');
+//Edición de Productos
+Route::get('productos/{id}/edicion', [ProductosController::class, 'edicion'])->name('productos.edicion');
+Route::put('productos/{id}/edicion', [ProductosController::class, 'actualizar'])->name('productos.actualizar');
+//Eliminación de Productos
+Route::delete('productos/{id}', [ProductosController::class, 'eliminar'])->name('productos.eliminar');
 
 //Sección de Usuarios
 Route::get('usuarios/creacion', [UsuariosController::class, 'creacion'])->name('usuarios.creacion');

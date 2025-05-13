@@ -366,14 +366,6 @@ return [
 
         // Separador visual
         ['header' => 'Cuenta'],
-
-        // Cerrar sesión
-        [
-            'text' => 'Cerrar sesión',
-            'icon' => 'fas fa-fw fa-sign-out-alt',
-            'url' => 'logout',
-            'method' => 'post',
-        ],
     ],
 
     /*

@@ -8,157 +8,109 @@
 
 @section('content')
 <div class="card shadow">
-<div class="card-body">
-    <div class="row mt-4">
-        <!-- Tabla de detalles de venta -->
-         <div class="table-responsive">
-            <table id="ventaConsulta" class="table table-striped" style="width:100%">
-                <thead class="custom-header">
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Concentración</th>
-                        <th>Presentación</th>
-                        <th>Usos comúnes</th>
-                        <th>Marca</th>
-                        <th>Categoria</th>
-                        <th>Proovedor</th>
-                        <th>Stock</th>
-                        <th>Lote</th>
-                        <th>Fecha de caducidad</th>
-                        <th>Precio al público</th>
-                        <th>Opciones</th>
-                    </tr>
-                </thead>
-                <tbody id="detalleVenta">
-                    <!-- Aquí irían las filas dinámicas -->
-                    <tr>
-                        <td>Paracetamol</td>
-                        <td>500 mg</td>
-                        <td>Caja con 20 tabletas</td>
-                        <td>Alivio de dolor, fiebre</td>
-                        <td>Genéricos S.A.</td>
-                        <td>Analgésico</td>
-                        <td>FarmaDistribuidora</td>
-                        <td>150</td>
-                        <td>L12345</td>
-                        <td>2026-05-15</td>
-                        <td>$45.00</td>
-                        <td>
-                            <a href="{{ route('productos.edicion') }}" class="btn btn-info btn-sm">
-                                <i class="fas fa-pen"></i>
-                            </a>
-                            <button onclick="alertaBorrar()" type="submit" class="btn btn-danger btn-sm">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Ibuprofeno</td>
-                        <td>400  mg</td>
-                        <td>Caja con 30 tabletas</td>
-                        <td>Antiinflamatorio, analgésico</td>
-                        <td>SaludPlus</td>
-                        <td>Antiinflamatorio</td>
-                        <td>Medicamentos MX</td>
-                        <td>200</td>
-                        <td>L67890</td>
-                        <td>2025-12-10</td>
-                        <td>$35.00</td>
-                        <td>
-                            <a href="{{ route('productos.edicion') }}" class="btn btn-info btn-sm">
-                                <i class="fas fa-pen"></i>
-                            </a>
-                            <button onclick="alertaBorrar()" type="submit" class="btn btn-danger btn-sm">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Loratadina</td>
-                        <td>10 mg</td>
-                        <td>Caja con 10 tabletas</td>
-                        <td>Tratamiento de alergias</td>
-                        <td>Alergex</td>
-                        <td>Antihistamínico</td>
-                        <td>Proveeduría Médica</td>
-                        <td>120</td>
-                        <td>L54321</td>
-                        <td>2027-03-20</td>
-                        <td>$30.00</td>
-                        <td>
-                            <a href="{{ route('productos.edicion') }}" class="btn btn-info btn-sm">
-                                <i class="fas fa-pen"></i>
-                            </a>
-                            <button onclick="alertaBorrar()" type="submit" class="btn btn-danger btn-sm">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+    <div class="card-body">
+        <div class="row mt-4">
+            <a href="creacion" class="btn btn-primary mb-3">
+                <i class="fas fa-plus"></i> Crear Producto
+            </a>
+            <div class="table-responsive">
+                <table id="productosConsulta" class="table table-striped text-center" style="width:100%">
+                    <thead class="custom-header">
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Código de barras</th>
+                            <th>Descripción</th>
+                            <th>Stock actual</th>
+                            <th>Precio de compra</th>
+                            <th>Precio de venta</th>
+                            <th>Categoría</th>
+                            <th>Laboratorio</th>
+                            <th>Lote</th>
+                            <th>Fecha de expiración</th>
+                            <th>Opciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detalleVenta">
+                        @foreach($productos as $producto)
+                        <tr>
+                            <td>{{ $producto->name }}</td>
+                            <td class="text-center">{{ $producto->barCode }}</td>
+                            <td>{{ $producto->description }}</td>
+                            <td class="text-center">{{ $producto->currentStock }}</td>
+                            <td class="text-center">${{ number_format($producto->purchasePrice, 2) }}</td>
+                            <td class="text-center">${{ number_format($producto->salePrice, 2) }}</td>
+                            <td>{{ $producto->category ? $producto->category->name : 'Sin categoría' }}</td>
+                            <td>{{ $producto->laboratory ? $producto->laboratory->name : 'Sin laboratorio' }}</td>
+                            <td>{{ $producto->batch ? 'Lote #' . $producto->batch->batchNumber : 'Sin lote' }}</td>
+                            <td>
+                                {{ $producto->batch && $producto->batch->expirationDate
+                                    ? \Carbon\Carbon::parse($producto->batch->expirationDate)->format('d/m/Y')
+                                    : 'Sin fecha' }}
+                            </td>
+                            <td>
+                                <a href="{{ route('productos.edicion', $producto->id) }}" class="btn btn-info btn-sm" title="Editar">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                                <form id="formEliminar{{ $producto->id }}" action="{{ route('productos.eliminar', $producto->id) }}" method="POST" style="display:inline-block">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="button" class="btn btn-danger btn-sm" title="Eliminar" onclick="confirmarEliminacion({{ $producto->id }})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-</div>
 </div>
 @stop
 
 @section('css')
-    <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.css">
-    <style>
-        html, body {
-            height: 100%;
-            overflow: hidden;
-        }
-        .content-wrapper{
-            background-color:#f1f1f1;
-        }
-        .card-body{
-            background-color:#ffffff;
-        }
-        .custom-header {
-            background-color: #0077B6;
-            color: white;
-        }
-    </style>
+<link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.css">
 <style>
-    .custom-header th {
-        white-space: nowrap; /* Evita que el texto se divida */
+    html, body {
+        height: 100%;
+        overflow: hidden;
+    }
+    .content-wrapper {
+        background-color: #f1f1f1;
     }
     .card-body {
-        padding-top: 0; /* Elimina el padding superior */
-        padding-bottom: 1rem; /* Ajusta el padding inferior si es necesario */
+        background-color: #ffffff;
+    }
+    .custom-header {
+        background-color: #0077B6;
+        color: white;
+    }
+    .custom-header th {
+        white-space: nowrap;
+    }
+    .card-body {
+        padding-top: 0;
+        padding-bottom: 1rem;
     }
 </style>
+
 @stop
 
 @section('js')
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.js"> </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"> </script>
-    <script src="https://cdn.datatables.net/2.2.2/js/dataTables.js"> </script>
-    <script src="https://cdn.datatables.net/2.2.2/js/dataTables.bootstrap5.js"> </script>
-    <script>
-        console.log("Hi, I'm using the Laravel-AdminLTE package!");
-    </script>
-    <script>
-        new DataTable('#ventaConsulta', {
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/2.2.2/js/dataTables.js"></script>
+<script src="https://cdn.datatables.net/2.2.2/js/dataTables.bootstrap5.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#productosConsulta').DataTable({
             language: {
                 url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
             },
             layout: {
-                top2End: function () {
-                    // Create a div for the toolbar
-                    let toolbar = document.createElement('div');
-                    toolbar.className = 'd-flex align-items-center mb-3';
-                    // Create the "Create Product" button
-                    let createButton = document.createElement('a');
-                    createButton.href = "{{ route('productos.creacion') }}";
-                    createButton.className = 'btn btn-primary ml-2';
-                    createButton.innerHTML = '<i class="fas fa-plus-circle me-2"></i>Crear producto';
-                    // Append the button to the toolbar
-                    toolbar.appendChild(createButton);
-                    return toolbar; // Return the custom toolbar
-                },
                 topStart: 'search',
                 topEnd: null,
                 bottomStart: [
@@ -182,27 +134,25 @@
                 bottomEnd: null
             }
         });
-    </script>
-    <script>
-        function alertaBorrar() {
-            Swal.fire({
+    });
+</script>
+
+<script>
+    function confirmarEliminacion(id) {
+        Swal.fire({
             title: "¿Estás seguro?",
-            text: "¡Esta acción no se podrá revertir!",
+            text: "¡Esta acción no se puede deshacer!",
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Sí, ¡Eliminar!",
+            confirmButtonText: "Sí, eliminar",
             cancelButtonText: "Cancelar"
-            }).then((result) => {
+        }).then((result) => {
             if (result.isConfirmed) {
-                Swal.fire({
-                title: "¡Eliminado!",
-                text: "El producto se ha eliminado de la tabla.",
-                icon: "success"
-                });
+                document.getElementById('formEliminar' + id).submit();
             }
-            });
-        }
-    </script>
+        });
+    }
+</script>
 @stop

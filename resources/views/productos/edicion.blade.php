@@ -9,97 +9,94 @@
 @section('content')
 <div class="card shadow">
     <div class="card-body">
+        <form id="formProducto" action="{{ route('productos.edicion', $producto->id) }}" method="POST">
+        @csrf
+        @method('PUT')
             <div class="row mb-3">
                 <div class="col-md-4">
-                    <label for="nombre" class="form-label">Nombre</label>
-                    <input type="text" name="nombre" class="form-control" value="Paracetamol">
+                    <label class="form-label">Código de barras</label>
+                    <input type="number" name="barCode" class="form-control" value="{{ $producto->barCode }}" readonly>
                 </div>
-
                 <div class="col-md-4">
-                    <label for="concentracion" class="form-label">Concentración</label>
-                    <div class="input-group">
-                        <input type="number" name="concentracion_cantidad" class="form-control" value="500">
-                        <select name="concentracion_unidad" class="form-select">
-                        <option value="mg" selected>mg</option>
-                        <option value="gr">gr</option>
-                        <option value="ml">ml</option>
-                        <option value="lts">lts</option>
-                        </select>
-                    </div>
+                    <label class="form-label">Nombre</label>
+                    <input type="text" name="name" class="form-control" value="{{ $producto->name }}" required>
                 </div>
-
                 <div class="col-md-4">
-                    <label for="presentacion" class="form-label">Presentación</label>
-                    <div class="input-group">
-                        <select name="presentacion" class="form-select">
-                            <option disabled>Seleccione una opción</option>
-                            <option value="Caja con 10 tabletas">Caja con 10 tabletas</option>
-                            <option value="Caja con 20 tabletas" selected>Caja con 20 tabletas</option>
-                            <option value="Caja con 30 tabletas">Caja con 30 tabletas</option>
-                            <option value="Frasco 60 ml">Frasco 60 ml</option>
-                            <option value="Frasco 120 ml">Frasco 120 ml</option>
-                            <option value="Frasco 240 ml">Frasco 240 ml</option>
-                            <option value="Inyectable">Inyectable</option>
-                            <option value="Pomada">Pomada</option>
-                        </select>
-                    </div>
+                    <label class="form-label">Descripción</label>
+                    <input type="text" name="description"  class="form-control" value="{{ $producto->description }}">
                 </div>
             </div>
 
             <div class="row mb-3">
                 <div class="col-md-4">
-                    <label for="usos" class="form-label">Usos comunes</label>
-                    <input type="text" name="usos" class="form-control" value="Alivio de dolor, fiebre">
+                    <label class="form-label">Stock actual</label>
+                    <input type="number" name="currentStock" class="form-control" value="{{ $producto->currentStock }}" required>
                 </div>
-
                 <div class="col-md-4">
-                    <label for="marca" class="form-label">Marca</label>
-                    <input type="text" name="marca" class="form-control" value="Genéricos S.A.">
+                    <label class="form-label">Stock mínimo</label>
+                    <input type="number" name="mintStock" class="form-control" value="{{ $producto->mintStock }}" required>
                 </div>
-
                 <div class="col-md-4">
-                    <label for="categoria" class="form-label">Categoría</label>
-                    <div class="input-group">
-                        <select name="categoria" class="form-select">
-                            <option disabled>Seleccione una categoría</option>
-                            <option value="Analgésico" selected>Analgésico</option>
-                            <option value="Antibiótico">Antibiótico</option>
-                            <option value="Antiinflamatorio">Antiinflamatorio</option>
-                            <option value="Antihistamínico">Antihistamínico</option>
-                            <option value="Antigripal">Antigripal</option>
-                            <option value="Antipirético">Antipirético</option>
-                            <option value="Antiséptico">Antiséptico</option>
-                            <option value="Anticonvulsivo">Anticonvulsivo</option>
-                            <option value="Ansiolítico">Ansiolítico</option>
-                            <option value="Otro">Otro</option>
-                        </select>
-                    </div>
+                    <label class="form-label">Stock máximo</label>
+                    <input type="number" name="maxStock" class="form-control" value="{{ $producto->maxStock }}" required>
                 </div>
             </div>
 
             <div class="row mb-3">
                 <div class="col-md-4">
-                    <label for="proveedor" class="form-label">Proveedor</label>
-                    <input type="text" class="form-control" id="proveedor" name="proveedor" value= "FarmaDistribuidora">
+                    <label class="form-label">Precio de compra</label>
+                    <input type="number" name="purchasePrice" class="form-control" step="0.01" value="{{ $producto->purchasePrice }}" required>
                 </div>
                 <div class="col-md-4">
-                    <label for="precio" class="form-label">Precio al público</label>
-                    <input type="number" class="form-control" id="precio" name="precio" value= "45" step="0.01" min="0">
+                    <label class="form-label">Precio de venta</label>
+                    <input type="number" name="salePrice" class="form-control" step="0.01" value="{{ $producto->salePrice }}" required>
+                </div>
+                <div class="col-md-4">
+                    <label for="category_id" class="form-label d-block">Categoría</label>
+                    <select name="category_id" id="category_id" class="form-select" required>
+                        @foreach($categorias as $categoria)
+                            <option value="{{ $categoria->id }}" {{ $producto->category_id == $categoria->id ? 'selected' : '' }}>
+                                {{ $categoria->name }}
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
             </div>
 
-            <div class="d-flex justify-content-between mt-4">
-                <a href="{{ route('productos.consulta') }}" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i> Volver
-                </a>
-                <button onclick="alertaConfirmar()" type="submit" class="btn btn-success">
-                    <i class="fas fa-save"></i> Guardar cambios
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="laboratory_id" class="form-label d-block">Laboratorio</label>
+                    <select name="laboratory_id" id="laboratory_id" class="form-select" required>
+                        @foreach($laboratorios as $lab)
+                            <option value="{{ $lab->id }}" {{ $producto->laboratory_id == $lab->id ? 'selected' : '' }}>
+                                {{ $lab->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="batch_id" class="form-label d-block">Lote</label>
+                    <select name="batch_id" id="batch_id" class="form-select" required>
+                        @foreach($lotes as $lote)
+                            <option value="{{ $lote->id }}" {{ $producto->batch_id == $lote->id ? 'selected' : '' }}>
+                                Lote #{{ $lote->batchNumber }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            <div class="mt-4">
+                <button type="button" class="btn btn-success" id="btnGuardar">
+                    <i class="fas fa-save"></i> Guardar producto
                 </button>
+                <a href="{{ route('productos.consulta') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Cancelar
+                </a>
             </div>
+        </form>
     </div>
 </div>
 @stop
-
 
 @section('css')
 <style>
@@ -120,31 +117,40 @@
 @stop
 
 @section('js')
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.js"> </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"> </script>
-    <script src="https://cdn.datatables.net/2.2.2/js/dataTables.js"> </script>
-    <script src="https://cdn.datatables.net/2.2.2/js/dataTables.bootstrap5.js"> </script>
-    <script>
-        console.log("Hi, I'm using the Laravel-AdminLTE package!");
-    </script>
-    <script>
-        function alertaConfirmar() {
-            Swal.fire({
-            title: "¿Guardar los cambios realizados?",
-            showDenyButton: false,
-            showCancelButton: true,
-            confirmButtonText: "Guardar",
-            cancelButtonText: "Cancelar"
-            }).then((result) => {
-            /* Read more about isConfirmed, isDenied below */
-            if (result.isConfirmed) {
-                Swal.fire("¡Los cambios han sido guardados!", "", "success");
-                // Redirige a la ruta deseada
-                window.location.href = 'consultas';
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.js"> </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"> </script>
+<script src="https://cdn.datatables.net/2.2.2/js/dataTables.js"> </script>
+<script src="https://cdn.datatables.net/2.2.2/js/dataTables.bootstrap5.js"> </script>
+<script>
+    console.log("Hi, I'm using the Laravel-AdminLTE package!");
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('formProducto');
+        const btnGuardar = document.getElementById('btnGuardar');
+
+        btnGuardar.addEventListener('click', function () {
+            // Forzamos validación HTML5
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
             }
+
+            // Confirmación con SweetAlert
+            Swal.fire({
+                title: "¿Guardar los cambios realizados?",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: "Guardar",
+                cancelButtonText: "Cancelar"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit(); // Envía el formulario
+                }
             });
-        }
-    </script>
+        });
+    });
+</script>
 @stop
 
