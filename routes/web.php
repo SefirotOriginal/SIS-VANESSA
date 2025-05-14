@@ -14,35 +14,49 @@ Route::get('/', function () {
 })->name('home');
 
 //Sección de Ventas
+Route::get('/buscar-producto/{codigo}', [VentasController::class, 'ventas.buscarProducto']);
+Route::post('ventas/consultas', [VentasController::class, 'crear'])->name('ventas.crear');
 Route::get('ventas/consultas', [VentasController::class, 'consultas'])->name('ventas.consulta');
 Route::get('ventas/detalles', [VentasController::class, 'detalles'])->name('ventas.detalles');
 Route::get('ventas/devoluciones', [VentasController::class, 'devoluciones'])->name('ventas.devoluciones');
 
-//Consulta de Productos
-Route::get('productos/consultas', [ProductosController::class, 'consultas'])->name('productos.consulta');
-//Creación
+
+//Creación de Productos
 Route::get('productos/creacion', [ProductosController::class, 'creacion'])->name('productos.creacion');
 Route::post('productos', [ProductosController::class, 'crear'])->name('productos.crear');
+//Consulta de Productos
+Route::get('productos/consultas', [ProductosController::class, 'consultas'])->name('productos.consulta');
 //Edición de Productos
 Route::get('productos/{id}/edicion', [ProductosController::class, 'edicion'])->name('productos.edicion');
 Route::put('productos/{id}/edicion', [ProductosController::class, 'actualizar'])->name('productos.actualizar');
 //Eliminación de Productos
 Route::delete('productos/{id}', [ProductosController::class, 'eliminar'])->name('productos.eliminar');
 
-//Sección de Usuarios
+
+//Creación de Usuarios
 Route::get('usuarios/creacion', [UsuariosController::class, 'creacion'])->name('usuarios.creacion');
+Route::post('usuarios', [UsuariosController::class, 'crear'])->name('usuarios.crear');
+//Consulta de Usuarios
 Route::get('usuarios/consultas', [UsuariosController::class, 'consultas'])->name('usuarios.consulta');
-Route::get('usuarios/edicion', [UsuariosController::class, 'edicion'])->name('usuarios.edicion');
+//Edición de Usuarios
+Route::get('/perfil', [UsuariosController::class, 'perfil'])->name('usuarios.perfil');
+Route::get('usuarios/{id}/edicion', [UsuariosController::class, 'edicion'])->name('usuarios.edicion');
+Route::put('usuarios/{id}/edicion', [UsuariosController::class, 'actualizar'])->name('usuarios.actualizar');
+//Eliminación de Usuarios
+Route::delete('usuarios/{id}/edicion', [UsuariosController::class, 'eliminar'])->name('usuarios.eliminar');
+
 
 //Sección de Roles
 Route::get('roles/creacion', [RolesController::class, 'creacion'])->name('roles.creacion');
 Route::get('roles/consultas', [RolesController::class, 'consultas'])->name('roles.consulta');
 Route::get('roles/edicion', [RolesController::class, 'edicion'])->name('roles.edicion');
 
+
 //Sección de Reportes
 Route::get('reportes/creacion', [ReportesController::class, 'creacion'])->name('reportes.creacion');
 Route::get('reportes/consultas', [ReportesController::class, 'consultas'])->name('reportes.consulta');
 Route::get('reportes/detalles', [ReportesController::class, 'detalles'])->name('reportes.detalles');
+
 
 //Sección de Cortes de caja
 Route::get('cortes/creacion', [CortesController::class, 'creacion'])->name('cortes.creacion');

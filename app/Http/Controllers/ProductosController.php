@@ -19,21 +19,6 @@ class ProductosController extends Controller
         return view('productos.creacion', compact('categorias', 'laboratorios', 'lotes'));
     }
 
-    public function consultas()
-    {
-        $productos = Producto::with(['category', 'laboratory', 'batch'])->get(); // Obtener todos los productos desde la BD
-        return view('productos.consulta', compact('productos'));  // Pasar los productos a la vista
-    }
-
-    public function edicion($id)
-    {
-        $producto = Producto::findOrFail($id);
-        $categorias = Categoria::select('id', 'name')->get();
-        $laboratorios = Laboratorio::select('id', 'name')->get();
-        $lotes = Lote::select('id', 'batchNumber')->get();
-        return view('productos.edicion', compact('producto', 'categorias', 'laboratorios', 'lotes'));
-    }
-
     public function crear(Request $request)
     {
         $validated = $request->validate([
@@ -53,11 +38,19 @@ class ProductosController extends Controller
         return redirect()->route('productos.consulta')->with('success', 'Producto creado correctamente.');
     }
 
-    public function eliminar($id)
+    public function consultas()
+    {
+        $productos = Producto::with(['category', 'laboratory', 'batch'])->get(); // Obtener todos los productos desde la BD
+        return view('productos.consulta', compact('productos'));  // Pasar los productos a la vista
+    }
+
+    public function edicion($id)
     {
         $producto = Producto::findOrFail($id);
-        $producto->delete();
-        return redirect()->route('productos.consulta')->with('success', 'Producto eliminado correctamente.');
+        $categorias = Categoria::select('id', 'name')->get();
+        $laboratorios = Laboratorio::select('id', 'name')->get();
+        $lotes = Lote::select('id', 'batchNumber')->get();
+        return view('productos.edicion', compact('producto', 'categorias', 'laboratorios', 'lotes'));
     }
 
     public function actualizar(Request $request, $id)
@@ -78,5 +71,12 @@ class ProductosController extends Controller
         $producto = Producto::findOrFail($id);
         $producto->update($validated);
         return redirect()->route('productos.consulta')->with('success', 'Producto actualizado correctamente.');
+    }
+
+    public function eliminar($id)
+    {
+        $producto = Producto::findOrFail($id);
+        $producto->delete();
+        return redirect()->route('productos.consulta')->with('success', 'Producto eliminado correctamente.');
     }
 }

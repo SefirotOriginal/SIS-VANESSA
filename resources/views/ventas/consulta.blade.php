@@ -13,30 +13,32 @@
     <div class="row mt-4">
         <!-- Tabla de detalles de venta -->
          <div class="table-responsive">
-            <table id="ventaConsulta" class="table table-striped" style="width:100%">
+            <table id="ventaConsulta" class="table table-striped text-center" style="width:100%">
                 <thead class="custom-header">
                     <tr>
                         <th>Atendió</th>
+                        <th>Folio</th>
+                        <th>Tipo de Recibo</th>
                         <th>Fecha</th>
-                        <th>Producto</th>
                         <th>Total</th>
                         <th>Opciones</th>
                     </tr>
                 </thead>
                 <tbody id="detalleVenta">
-                    <!-- Aquí irían las filas dinámicas -->
-                    <tr>
-                        <td>Monserrat Padilla</td>
-                        <td>25-04-2025</td>
-                        <td>Paracetamol 450g (x1), Botella de agua 600ml (x1)</td>
-                        <td>$45.00</td>
-                        <td>
-                            <a href="detalles" class="btn btn-info btn-sm">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    <!-- Fin de ejemplo -->
+                    @foreach ($ventas as $venta)
+                        <tr>
+                            <td>{{ $venta->usuario->name ?? 'Desconocido' }}</td>
+                            <td>{{ $venta->referenceNumber }}</td>
+                            <td>{{ $venta->receiptType }}</td>
+                            <td>{{ $venta->created_at->format('d-m-Y') }}</td>
+                            <td>${{ number_format($venta->amountTotal, 2) }}</td>
+                            <td>
+                                <a href="{{ route('ventas.detalles', $venta->id) }}" class="btn btn-info btn-sm">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    @endforeach
                 </tbody>
             </table>
         </div>

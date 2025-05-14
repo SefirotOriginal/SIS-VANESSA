@@ -16,141 +16,34 @@
     </div>
 
     <div class="row">
-        {{-- Usuario 1 --}}
+    @foreach ($usuarios as $usuario)
         <div class="col-md-6 mb-3">
             <div class="card shadow">
                 <div class="card-body d-flex flex-column">
                     <div class="d-flex align-items-center mb-3">
                         <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Perfil" class="rounded-circle me-3" width="60" height="60">
-                         <div class="d-flex flex-column">
-                            <h5 class="card-title mb-2"><b>Ana Gómez</b></h5>
-                            <span class="text-muted">Administrador</span>
+                        <div class="d-flex flex-column">
+                            <h5 class="card-title mb-2"><b>{{ $usuario->name }}</b></h5>
+                            <span class="text-muted">{{ $usuario->role ?? 'Sin rol' }}</span>
                         </div>
                     </div>
-                    <p class="card-text"><b>Correo:</b> ana.gomez@email.com</p>
-                    <p class="card-text"><b>Número telefónico:</b> 3221084900</p>
-                    <p class="card-text"><b>Fecha de registro:</b> 03-01-2025</p>
-                    <p class="card-text"><b>Estado:</b> <span class="badge bg-success">Activo</span></p>
+                    <p class="card-text"><b>Correo:</b> {{ $usuario->email }}</p>
+                    <p class="card-text"><b>Número telefónico:</b> {{ $usuario->telefono ?? 'No registrado' }}</p>
+                    <p class="card-text"><b>Fecha de registro:</b> {{ $usuario->created_at->format('d-m-Y') }}</p>
+                    <p class="card-text"><b>Estado:</b> 
+                        <span class="badge {{ $usuario->activo ? 'bg-success' : 'bg-danger' }}">
+                            {{ $usuario->activo ? 'Activo' : 'Inactivo' }}
+                        </span>
+                    </p>
                     <div class="mt-auto d-flex justify-content-end">
-                    <a href="edicion" class="btn btn-sm btn-primary">Editar</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- Usuario 2 --}}
-    <div class="col-md-6 mb-3">
-        <div class="card shadow">
-            <div class="card-body d-flex flex-column">
-                <div class="d-flex align-items-center mb-3">
-                    <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Perfil" class="rounded-circle me-3" width="60" height="60">
-                    <div class="d-flex flex-column">
-                        <h5 class="card-title mb-2"><b>Carlos Pérez</b></h5>
-                        <span class="text-muted">Administrador</span>
-                    </div>
-                </div>
-                <p class="card-text"><b>Correo:</b> carlos.perez@email.com</p>
-                <p class="card-text"><b>Número telefónico:</b> 3221084600</p>
-                <p class="card-text"><b>Fecha de registro:</b> 03-01-2025</p>
-                <p class="card-text"><b>Estado:</b> <span class="badge bg-success">Activo</span></p>
-                    <div class="mt-auto d-flex justify-content-end">
-                    <a href="edicion" class="btn btn-sm btn-primary">Editar</a>
+                        <a href="{{ route('usuarios.edicion', $usuario->id) }}" class="btn btn-sm btn-primary" title="Editar">
+                            Editar
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="row">
-        {{-- Usuario 3 --}}
-        <div class="col-md-6 mb-3">
-            <div class="card shadow">
-                <div class="card-body d-flex flex-column">
-                    <div class="d-flex align-items-center mb-3">
-                        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Perfil" class="rounded-circle me-3" width="60" height="60">
-                         <div class="d-flex flex-column">
-                            <h5 class="card-title mb-2"><b>Jorge Macías Cruz</b></h5>
-                            <span class="text-muted">Vendedor</span>
-                        </div>
-                    </div>
-                    <p class="card-text"><b>Correo:</b> jdtogregorian@email.com</p>
-                    <p class="card-text"><b>Número telefónico:</b> 3221084900</p>
-                    <p class="card-text"><b>Fecha de registro:</b> 03-01-2025</p>
-                    <p class="card-text"><b>Estado:</b> <span class="badge bg-success">Activo</span></p>
-                    <div class="mt-auto d-flex justify-content-end">
-                    <a href="edicion" class="btn btn-sm btn-primary">Editar</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- Usuario 4 --}}
-    <div class="col-md-6 mb-3">
-        <div class="card shadow">
-            <div class="card-body d-flex flex-column">
-                <div class="d-flex align-items-center mb-3">
-                    <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Perfil" class="rounded-circle me-3" width="60" height="60">
-                    <div class="d-flex flex-column">
-                        <h5 class="card-title mb-2"><b>María Azucena</b></h5>
-                        <span class="text-muted">Vendedor</span>
-                    </div>
-                </div>
-                <p class="card-text"><b>Correo:</b> magic_quotes_runtime@email.com</p>
-                <p class="card-text"><b>Número telefónico:</b> 3221084900</p>
-                <p class="card-text"><b>Fecha de registro:</b> 03-01-2025</p>
-                <p class="card-text"><b>Estado:</b> <span class="badge bg-success">Activo</span></p>
-                    <div class="mt-auto d-flex justify-content-end">
-                    <a href="edicion" class="btn btn-sm btn-primary">Editar</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        {{-- Usuario 5 --}}
-        <div class="col-md-6 mb-3">
-            <div class="card shadow">
-                <div class="card-body d-flex flex-column">
-                    <div class="d-flex align-items-center mb-3">
-                        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Perfil" class="rounded-circle me-3" width="60" height="60">
-                         <div class="d-flex flex-column">
-                            <h5 class="card-title mb-2"><b>Ramiro Ramirez</b></h5>
-                            <span class="text-muted">Administrador</span>
-                        </div>
-                    </div>
-                    <p class="card-text"><b>Correo:</b> rad2deg.rand@hotmail.com</p>
-                    <p class="card-text"><b>Número telefónico:</b> 3221084900</p>
-                    <p class="card-text"><b>Fecha de registro:</b> 03-01-2025</p>
-                    <p class="card-text"><b>Estado:</b> <span class="badge bg-success">Activo</span></p>
-                    <div class="mt-auto d-flex justify-content-end">
-                    <a href="edicion" class="btn btn-sm btn-primary">Editar</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- Usuario 6 --}}
-    <div class="col-md-6 mb-3">
-        <div class="card shadow">
-            <div class="card-body d-flex flex-column">
-                <div class="d-flex align-items-center mb-3">
-                    <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Perfil" class="rounded-circle me-3" width="60" height="60">
-                    <div class="d-flex flex-column">
-                        <h5 class="card-title mb-2"><b>Mario Angustias</b></h5>
-                        <span class="text-muted">Administrador</span>
-                    </div>
-                </div>
-                <p class="card-text"><b>Correo:</b> mb_convert_variables@email.com</p>
-                <p class="card-text"><b>Número telefónico:</b> 3221084900</p>
-                <p class="card-text"><b>Fecha de registro:</b> 03-01-2025</p>
-                <p class="card-text"><b>Estado:</b> <span class="badge bg-success">Activo</span></p>
-                    <div class="mt-auto d-flex justify-content-end">
-                    <a href="edicion" class="btn btn-sm btn-primary">Editar</a>
-                    </div>
-                </div>
-            </div>
-        </div>
+    @endforeach
     </div>
 </div>
 @stop

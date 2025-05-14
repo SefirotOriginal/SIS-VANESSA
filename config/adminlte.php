@@ -366,6 +366,13 @@ return [
 
         // Separador visual
         ['header' => 'Cuenta'],
+
+        // Sección de MI PERFIL
+        [
+            'text' => 'Mi perfil',
+            'icon' => 'fas fa-user-cog',
+            'route' => 'usuarios.perfil',
+        ],
     ],
 
     /*

@@ -10,14 +10,17 @@
 <div class="container-fluid px-0">
     <div class="card shadow">
         <div class="card-body">
+            <form id="formUsuario" action="{{ route('usuarios.edicion', $usuario->id) }}" method="POST">
+            @csrf
+            @method('PUT')
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="nombre" class="form-label">Nombre completo</label>
-                        <input type="text" class="form-control" id="nombre" value="Ana Gómez">
+                        <input type="text" name="name" class="form-control" value="{{ $usuario->name }}" required>
                     </div>
                     <div class="col-md-6">
                         <label for="email" class="form-label">Correo electrónico</label>
-                        <input type="email" class="form-control" id="email" value="ana.gomez@email.com">
+                        <input type="email" name="email" class="form-control" value="{{ $usuario->email }}" required>
                     </div>
                 </div>
 
@@ -28,7 +31,7 @@
                     </div>
                     <div class="col-md-6">
                         <label for="password" class="form-label">Contraseña</label>
-                        <input type="password" class="form-control" id="password" value="3221084900">
+                        <input type="password" name="password" class="form-control" value="{{ $usuario->password }}" required>
                     </div>
                 </div>
 
@@ -58,18 +61,25 @@
                     <img id="previewImagen" src="#" alt="Vista previa" class="img-thumbnail rounded-circle" style="max-width: 150px; display: none;">
                 </div>
                 <div class="d-flex justify-content-between">
-                    <a href="{{ url()->previous() }}" class="btn btn-secondary">
+                    <a href="{{ route('usuarios.consulta') }}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Cancelar
                     </a>
                     <div>
-                        <button onclick="alertaBorrar()" type="button" class="btn btn-danger me-2">
+                        @if ($usuario->id !== auth()->id())
+                        <button type="button" class="btn btn-danger me-2" title="Eliminar" onclick="confirmarEliminacion({{ $usuario->id }})">
                             <i class="fas fa-trash-alt"></i> Eliminar usuario
                         </button>
-                        <button onclick="alertaConfirmar()" type="submit" class="btn btn-success">
+                        @endif
+                        <button type="button" class="btn btn-success" id="btnGuardar">
                             <i class="fas fa-save"></i> Guardar cambios
                         </button>
                     </div>
                 </div>
+            </form>
+            <form id="formEliminar{{ $usuario->id }}" action="{{ route('usuarios.eliminar', $usuario->id) }}" method="POST" style="display: none;">
+            @csrf
+            @method('DELETE')
+            </form>
         </div>
     </div>
 </div>
@@ -112,65 +122,70 @@
 @stop
 
 @section('js')
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.js"> </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"> </script>
-    <script src="https://cdn.datatables.net/2.2.2/js/dataTables.js"> </script>
-    <script src="https://cdn.datatables.net/2.2.2/js/dataTables.bootstrap5.js"> </script>
-    <script>
-        console.log("Hi, I'm using the Laravel-AdminLTE package!");
-    </script>
-    <script>
-        document.getElementById('imagenPerfil').addEventListener('change', function (e) {
-            const preview = document.getElementById('previewImagen');
-            const file = e.target.files[0];
-            if (file && file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = () => {
-                    preview.src = reader.result;
-                    preview.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    </script>
-    <script>
-        function alertaConfirmar() {
-            Swal.fire({
-            title: "¿Guardar los cambios?",
-            showDenyButton: false,
-            showCancelButton: true,
-            confirmButtonText: "Guardar",
-            cancelButtonText: "Cancelar"
-            }).then((result) => {
-            /* Read more about isConfirmed, isDenied below */
-            if (result.isConfirmed) {
-                Swal.fire("¡Los cambios han sido guardados!", "", "success");
-                // Redirige a la ruta deseada
-                window.location.href = 'consultas';
-            }
-            });
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.js"> </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"> </script>
+<script src="https://cdn.datatables.net/2.2.2/js/dataTables.js"> </script>
+<script src="https://cdn.datatables.net/2.2.2/js/dataTables.bootstrap5.js"> </script>
+<script>
+    console.log("Hi, I'm using the Laravel-AdminLTE package!");
+</script>
+<script>
+    document.getElementById('imagenPerfil').addEventListener('change', function (e) {
+        const preview = document.getElementById('previewImagen');
+        const file = e.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                preview.src = reader.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
         }
-        function alertaBorrar() {
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('formUsuario');
+        const btnGuardar = document.getElementById('btnGuardar');
+
+        btnGuardar.addEventListener('click', function () {
+            // Forzamos validación HTML5
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            // Confirmación con SweetAlert
             Swal.fire({
+                title: "¿Guardar los cambios realizados?",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: "Guardar",
+                cancelButtonText: "Cancelar"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit(); // Envía el formulario
+                }
+            });
+        });
+    });
+</script>
+<script>
+    function confirmarEliminacion(id) {
+        Swal.fire({
             title: "¿Estás seguro?",
-            text: "¡Esta acción no se podrá revertir!",
+            text: "¡Esta acción no se puede deshacer!",
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Sí, ¡Eliminar!",
+            confirmButtonText: "Sí, eliminar",
             cancelButtonText: "Cancelar"
-            }).then((result) => {
+        }).then((result) => {
             if (result.isConfirmed) {
-                Swal.fire({
-                title: "¡Eliminado!",
-                text: "El usuario se ha eliminado de la lista.",
-                icon: "success"
-                });
-                window.location.href = 'consultas';
+                document.getElementById('formEliminar' + id).submit();
             }
-            });
-        }
-    </script>
-@stop
+        });
+    }
+</script>
