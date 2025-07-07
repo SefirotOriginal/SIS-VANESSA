@@ -8,6 +8,8 @@ use App\Http\Controllers\UsuariosController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\ReportesController;
 use App\Http\Controllers\CortesController;
+use App\Http\Controllers\RoleController;
+use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
     return view('welcome');
@@ -34,23 +36,30 @@ Route::delete('productos/{id}', [ProductosController::class, 'eliminar'])->name(
 
 
 //Creación de Usuarios
-Route::get('usuarios/creacion', [UsuariosController::class, 'creacion'])->name('usuarios.creacion');
-Route::post('usuarios', [UsuariosController::class, 'crear'])->name('usuarios.crear');
+Route::get('users/create', [UsuariosController::class, 'create'])->name('users.create');
+Route::post('users', [UsuariosController::class, 'store'])->name('users.store');
 //Consulta de Usuarios
-Route::get('usuarios/consultas', [UsuariosController::class, 'consultas'])->name('usuarios.consulta');
+Route::get('users/index', [UsuariosController::class, 'index'])->name('users.index');
+Route::get('users/{id}/edit', [UsuariosController::class, 'edit'])->name('users.edit');
+Route::put('users/{id}/update', [UsuariosController::class, 'update'])->name('users.update');
 //Edición de Usuarios
 Route::get('/perfil', [UsuariosController::class, 'perfil'])->name('usuarios.perfil');
-Route::get('usuarios/{id}/edicion', [UsuariosController::class, 'edicion'])->name('usuarios.edicion');
-Route::put('usuarios/{id}/edicion', [UsuariosController::class, 'actualizar'])->name('usuarios.actualizar');
-//Eliminación de Usuarios
-Route::delete('usuarios/{id}/edicion', [UsuariosController::class, 'eliminar'])->name('usuarios.eliminar');
+// Route::get('usuarios/{id}/edicion', [UsuariosController::class, 'edicion'])->name('usuarios.edicion');
+// Route::put('usuarios/{id}/edicion', [UsuariosController::class, 'actualizar'])->name('usuarios.actualizar');
+// //Eliminación de Usuarios
+// Route::delete('usuarios/{id}/edicion', [UsuariosController::class, 'eliminar'])->name('usuarios.eliminar');
 
 
 //Sección de Roles
-Route::get('roles/creacion', [RolesController::class, 'creacion'])->name('roles.creacion');
-Route::get('roles/consultas', [RolesController::class, 'consultas'])->name('roles.consulta');
-Route::get('roles/edicion', [RolesController::class, 'edicion'])->name('roles.edicion');
-
+// Route::get('roles/creacion', [RolesController::class, 'creacion'])->name('roles.creacion');
+// Route::get('roles/consultas', [RolesController::class, 'consultas'])->name('roles.consulta');
+// Route::get('roles/edicion', [RolesController::class, 'edicion'])->name('roles.edicion');
+Route::get('roles/create', [RoleController::class, 'create'])->name('roles.create');
+Route::post('roles', [RoleController::class, 'store'])->name('roles.store');
+Route::get('roles/index', [RoleController::class, 'index'])->name('roles.index');
+Route::get('roles/{id}/edit', [RoleController::class, 'edit'])->name('roles.edit');
+Route::put('roles/{id}/edit', [RoleController::class, 'update'])->name('roles.update');
+Route::delete('roles/{id}', [RoleController::class, 'destroy'])->name('roles.destroy');
 
 //Sección de Reportes
 Route::get('reportes/creacion', [ReportesController::class, 'creacion'])->name('reportes.creacion');

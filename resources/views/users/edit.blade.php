@@ -10,7 +10,7 @@
 <div class="container-fluid px-0">
     <div class="card shadow">
         <div class="card-body">
-            <form id="formUsuario" action="{{ route('usuarios.edicion', $usuario->id) }}" method="POST">
+            <form id="formUsuario" action="{{ route('users.update', $usuario->id) }}" method="POST">
             @csrf
             @method('PUT')
                 <div class="row mb-3">
@@ -27,22 +27,23 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="usuario" class="form-label">Número telefónico</label>
-                        <input type="number" class="form-control" id="telefono" value="3221084900">
+                        <input type="number" name="phoneNumber" class="form-control" id="telefono" value="{{ $usuario->phoneNumber }}">
                     </div>
                     <div class="col-md-6">
                         <label for="password" class="form-label">Contraseña</label>
-                        <input type="password" name="password" class="form-control" value="{{ $usuario->password }}" required>
+                        <input type="password" name="password" class="form-control" value="">
                     </div>
                 </div>
 
                 <div class="mb-3">
                     <label for="rol" class="form-label">Rol</label>
-                    <select id="rol" class="form-select">
+                    <select id="rol" name="role" class="form-select">
                         <option disabled>Selecciona un rol</option>
-                        <option selected>Administrador</option>
-                        <option>Encargado de inventario</option>
-                        <option>Vendedor</option>
-                        <option>Supervisor</option>
+                        @foreach ($roles as $rol)
+                            <option value="{{ $rol->name }}" {{ $usuario->roles->contains($rol->id) ? 'selected' : '' }}>
+                                {{ $rol->name }}
+                            </option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="mb-3">
@@ -61,7 +62,7 @@
                     <img id="previewImagen" src="#" alt="Vista previa" class="img-thumbnail rounded-circle" style="max-width: 150px; display: none;">
                 </div>
                 <div class="d-flex justify-content-between">
-                    <a href="{{ route('usuarios.consulta') }}" class="btn btn-secondary">
+                    <a href="{{ route('users.index') }}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Cancelar
                     </a>
                     <div>
@@ -76,10 +77,10 @@
                     </div>
                 </div>
             </form>
-            <form id="formEliminar{{ $usuario->id }}" action="{{ route('usuarios.eliminar', $usuario->id) }}" method="POST" style="display: none;">
+            {{-- <form id="formEliminar{{ $usuario->id }}" action="{{ route('usuarios.eliminar', $usuario->id) }}" method="POST" style="display: none;">
             @csrf
             @method('DELETE')
-            </form>
+            </form> --}}
         </div>
     </div>
 </div>
@@ -189,3 +190,4 @@
         });
     }
 </script>
+@stop

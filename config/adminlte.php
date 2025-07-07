@@ -306,7 +306,7 @@ return [
             'url' => '',
             'topnav_right' => true,
         ],
-        
+
         // Sección de VENTAS
         [
             'text' => 'Ventas',
@@ -340,12 +340,12 @@ return [
                 [
                     'text' => 'Consultar usuarios',
                     'icon' => 'fas fa-fw fa-user-friends',
-                    'route' => 'usuarios.consulta',
+                    'route' => 'users.index',
                 ],
                 [
                     'text' => 'Consultar roles',
                     'icon' => 'fas fa-fw fa-id-badge',
-                    'route' => 'roles.consulta',
+                    'route' => 'roles.index',
                 ],
             ],
         ],
