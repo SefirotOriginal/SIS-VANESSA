@@ -14,10 +14,17 @@ return new class extends Migration
         //Tabla de lotes
         Schema::create("batches", function (Blueprint $table) {
             $table->id();
-            $table->integer("batchNumber");
-            $table->date("expirationDate");
+            $table->foreignId('product_id')->constrained()->onDelete('cascade');
+            $table->string("batch_number");
+            $table->date("creation_date");
+            $table->date("expiration_date");
+            $table->integer("stock")->default(0);
+            $table->integer("min_stock")->default(0);
+            $table->integer("max_stock")->default(0);
             $table->timestamps();
             $table->softDeletes();
+
+            $table->unique(['product_id', 'batch_number']);
         });
     }
 

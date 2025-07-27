@@ -329,8 +329,31 @@ return [
         [
             'text' => 'Productos',
             'icon' => 'fas fa-fw fa-boxes',
-            'route' => 'productos.consulta',
+            'submenu' => [
+                [
+                    'text' => 'Inventario',
+                    'icon' => 'fas fa-fw fa-boxes',
+                    'route' => 'products.index',
+                ],
+                [
+                    'text' => 'Categorías',
+                    'icon' => 'fas fa-fw fa-tags',
+                    'route' => 'categories.index',
+                ],
+                // Sección de Lotes
+                [
+                    'text' => 'Lotes',
+                    'icon' => 'fas fa-fw fa-boxes',
+                    'route' => 'batches.index',
+                ],
+                [
+                    'text' => 'laboratorios',
+                    'icon' => 'fas fa-fw fa-industry',
+                    'route' => 'laboratories.index',
+                ]
+            ],
         ],
+
 
         // Sección de USUARIOS
         [

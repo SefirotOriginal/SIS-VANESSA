@@ -3,12 +3,15 @@
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 use App\Http\Controllers\VentasController;
-use App\Http\Controllers\ProductosController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\UsuariosController;
 use App\Http\Controllers\RolesController;
+use App\Http\Controllers\LaboratoryController;
 use App\Http\Controllers\ReportesController;
 use App\Http\Controllers\CortesController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\BatchController;
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
@@ -23,17 +26,40 @@ Route::get('ventas/detalles', [VentasController::class, 'detalles'])->name('vent
 Route::get('ventas/devoluciones', [VentasController::class, 'devoluciones'])->name('ventas.devoluciones');
 
 
-//Creación de Productos
-Route::get('productos/creacion', [ProductosController::class, 'creacion'])->name('productos.creacion');
-Route::post('productos', [ProductosController::class, 'crear'])->name('productos.crear');
-//Consulta de Productos
-Route::get('productos/consultas', [ProductosController::class, 'consultas'])->name('productos.consulta');
-//Edición de Productos
-Route::get('productos/{id}/edicion', [ProductosController::class, 'edicion'])->name('productos.edicion');
-Route::put('productos/{id}/edicion', [ProductosController::class, 'actualizar'])->name('productos.actualizar');
-//Eliminación de Productos
-Route::delete('productos/{id}', [ProductosController::class, 'eliminar'])->name('productos.eliminar');
+//Creación de products
+Route::get('products/create', [ProductController::class, 'create'])->name('products.create');
+Route::post('products', [ProductController::class, 'store'])->name('products.store');
+//Consulta de products
+Route::get('products/index', [ProductController::class, 'index'])->name('products.index');
+Route::get('products/{id}/edit', [ProductController::class, 'edit'])->name('products.edit');
+Route::put('products/{id}', [ProductController::class, 'update'])->name('products.update');
+Route::delete('products/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
 
+//Lotes
+Route::get('batches/index', [BatchController::class, 'index'])->name('batches.index');
+Route::get('batches/create', [BatchController::class, 'create'])->name('batches.create');
+Route::post('batches', [BatchController::class, 'store'])->name('batches.store');
+Route::get('batches/{batch}/edit', [BatchController::class, 'edit'])->name('batches.edit');
+Route::put('batches/{batch}', [BatchController::class, 'update'])->name('batches.update');
+Route::delete('batches/{batch}', [BatchController::class, 'destroy'])->name('batches.destroy');
+
+//Categorías
+Route::get('categories/index', [CategoryController::class, 'index'])->name('categories.index');
+Route::get('categories/create', [CategoryController::class, 'create'])->name('categories.create');
+Route::post('categories', [CategoryController::class, 'store'])->name('categories.store');
+Route::get('categories/{category}/edit', [CategoryController::class, 'edit'])->name('categories.edit');
+Route::put('categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
+Route::delete('categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+
+//Laboratorios
+Route::get('laboratories/index', [LaboratoryController::class, 'index'])->name('laboratories.index');
+Route::get('laboratories/create', [LaboratoryController::class, 'create'])->name('laboratories.create');
+Route::post('laboratories', [LaboratoryController::class, 'store'])->name('laboratories.store');
+Route::get('laboratories/{laboratory}/edit', [LaboratoryController::class, 'edit'])->name('laboratories.edit');
+Route::put('laboratories/{laboratory}', [LaboratoryController::class, 'update'])->name('laboratories.update');
+Route::delete('laboratories/{laboratory}', [LaboratoryController::class, 'destroy'])->name('laboratories.destroy');
+
+//
 
 //Creación de Usuarios
 Route::get('users/create', [UsuariosController::class, 'create'])->name('users.create');

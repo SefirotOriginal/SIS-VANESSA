@@ -15,7 +15,8 @@ return new class extends Migration
         Schema::create("laboratories", function (Blueprint $table) {
             $table->id();
             $table->string("name");
-            $table->string("description");
+            $table->string("state")->nullable();
+            $table->string("contact")->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

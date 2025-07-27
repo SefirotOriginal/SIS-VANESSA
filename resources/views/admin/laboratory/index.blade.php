@@ -1,61 +1,47 @@
 @extends('adminlte::page')
 
-@section('title', 'Consultar Productos')
+@section('title', 'Laboratorios')
 
 @section('content_header')
-<h1><b>Consulta de productos</b></h1>
+<h1><b>Laboratorios</b></h1>
 @stop
 
 @section('content')
 <div class="card shadow">
     <div class="card-body">
         <div class="row mt-4">
-            <a href="creacion" class="btn btn-primary mb-3">
-                <i class="fas fa-plus"></i> Crear Producto
+            <a href="{{route('laboratories.create')}}" class="btn btn-primary mb-3">
+                <i class="fas fa-plus"></i>Crear Laboratorio
             </a>
+
             <div class="table-responsive">
-                <table id="productosConsulta" class="table table-striped text-center" style="width:100%">
+                <table id="batchesTable" class="table table-striped text-center" style="width:100%">
                     <thead class="custom-header">
                         <tr>
                             <th>Nombre</th>
-                            <th>Código de barras</th>
-                            <th>Descripción</th>
-                            <th>Stock actual</th>
-                            <th>Precio de compra</th>
-                            <th>Precio de venta</th>
-                            <th>Categoría</th>
-                            <th>Laboratorio</th>
-                            <th>Lote</th>
-                            <th>Fecha de expiración</th>
-                            <th>Opciones</th>
+                            <th>Estado</th>
+                            <th>Contacto</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
-                    <tbody id="detalleVenta">
-                        @foreach($productos as $producto)
+                    <tbody id="batchesTableBody">
+                        @foreach ( $laboratories as $laboratory)
                         <tr>
-                            <td>{{ $producto->name }}</td>
-                            <td class="text-center">{{ $producto->barCode }}</td>
-                            <td>{{ $producto->description }}</td>
-                            <td class="text-center">{{ $producto->currentStock }}</td>
-                            <td class="text-center">${{ number_format($producto->purchasePrice, 2) }}</td>
-                            <td class="text-center">${{ number_format($producto->salePrice, 2) }}</td>
-                            <td>{{ $producto->category ? $producto->category->name : 'Sin categoría' }}</td>
-                            <td>{{ $producto->laboratory ? $producto->laboratory->name : 'Sin laboratorio' }}</td>
-                            <td>{{ $producto->batch ? 'Lote #' . $producto->batch->batchNumber : 'Sin lote' }}</td>
+                            <td>{{ $laboratory->name }}</td>
+                            <td>{{ $laboratory->state }}</td>
+                            <td>{{ $laboratory->contact }}</td>
                             <td>
-                                {{ $producto->batch && $producto->batch->expirationDate
-                                    ? \Carbon\Carbon::parse($producto->batch->expirationDate)->format('d/m/Y')
-                                    : 'Sin fecha' }}
-                            </td>
-                            <td>
-                                <a href="{{ route('productos.edicion', $producto->id) }}" class="btn btn-info btn-sm" title="Editar">
-                                    <i class="fas fa-pen"></i>
+                                <a href="{{ route('laboratories.show', $laboratory) }}" class="btn btn-info btn-sm">
+                                    <i class="fas fa-eye"></i> Ver
                                 </a>
-                                <form id="formEliminar{{ $producto->id }}" action="{{ route('productos.eliminar', $producto->id) }}" method="POST" style="display:inline-block">
+                                <a href="{{ route('laboratories.edit', $laboratory) }}" class="btn btn-warning btn-sm">
+                                    <i class="fas fa-edit"></i> Editar
+                                </a>
+                                <form action="{{ route('laboratories.destroy', $laboratory) }}" method="POST" class="d-inline" id="formEliminar{{ $category->id }}">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="button" class="btn btn-danger btn-sm" title="Eliminar" onclick="confirmarEliminacion({{ $producto->id }})">
-                                        <i class="fas fa-trash"></i>
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="confirmarEliminacion({{ $category->id }})">
+                                        <i class="fas fa-trash  "></i> Eliminar
                                     </button>
                                 </form>
                             </td>
@@ -106,7 +92,7 @@
 
 <script>
     $(document).ready(function () {
-        $('#productosConsulta').DataTable({
+        $('#batchesTable').DataTable({
             language: {
                 url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
             },
