@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\batch;
+use App\Models\Batch;
 use App\Models\Producto;
+use App\Models\ProductPresentation;
 use Illuminate\Http\Request;
 
 class BatchController extends Controller
@@ -13,7 +14,7 @@ class BatchController extends Controller
      */
     public function index()
     {
-        $batches = batch::all();
+        $batches = Batch::with('productPresentation.product')->latest()->get();
         return view('admin.batch.index', compact('batches'));
     }
 
@@ -23,8 +24,8 @@ class BatchController extends Controller
     public function create()
     {
         //
-        $products = Producto::all(); // Assuming you have a Product model
-        return view('admin.batch.create', compact('products'));
+        $products_presentation = ProductPresentation::with('product', 'presentation')->get(); // Assuming you have a Product model
+        return view('admin.batch.create', compact('products_presentation'));
     }
 
     /**
@@ -33,27 +34,19 @@ class BatchController extends Controller
     public function store(Request $request)
     {
         //
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
+        $validate = $request->validate([
             'batch_number' => 'required|string|max:255',
+            'product_presentation_id' => 'required|exists:product_presentations,id',
             'creation_date' => 'required|date',
             'expiration_date' => 'required|date|after_or_equal:creation_date',
             'stock' => 'required|integer|min:0',
-            'min_stock' => 'nullable|integer|min:0',
-            'max_stock' => 'nullable|integer|min:0',
+            'min_stock' => 'required|integer|min:0',
+            'max_stock' => 'required|integer|min:0|gte:min_stock',
         ]);
 
-        batch::create([
-            'product_id' => $request->product_id,
-            'batch_number' => $request->batch_number,
-            'creation_date' => $request->creation_date,
-            'expiration_date' => $request->expiration_date,
-            'stock' => $request->stock,
-            'min_stock' => $request->min_stock,
-            'max_stock' => $request->max_stock,
-        ]);
+        Batch::create($validate);
 
-        return redirect()->route('batches.index')->with('success', 'Lote creado correctamente.');
+        return redirect()->route('batches.index')->with('success', 'Lote creado exitosamente.');
     }
 
     /**

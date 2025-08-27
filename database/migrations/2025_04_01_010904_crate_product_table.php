@@ -12,26 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         //Tabla de productos
-        Schema::create("products", function (Blueprint $table) {
+        Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->string("bar_code")->unique();
-            $table->string("name");
-
+            $table->string('name');
             $table->foreignId('category_id')->constrained()->onDelete('restrict');
             $table->foreignId('laboratory_id')->constrained()->onDelete('restrict');
-            // $table->foreignId('presentation_id')->constrained()->onDelete('restrict');
-
-            $table->text("usage");
-            $table->string("content")->nullable();
-            $table->string("formula")->nullable();
-            $table->string("description")->nullable();
-            $table->string('presentation')->nullable();
-
-            $table->boolean("status")->default(true);
-
-            // $table->decimal("purchase_price", 10, 2);
-            // $table->decimal("sale_price", 10, 2);
-
+            $table->text('usage');
+            $table->string('description')->nullable();
+            $table->boolean('status')->default(true);
             $table->timestamps();
             $table->softDeletes();
         });

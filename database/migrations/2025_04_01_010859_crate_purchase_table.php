@@ -14,12 +14,13 @@ return new class extends Migration
         //Tabla de compras
         Schema::create("purchases", function (Blueprint $table) {
             $table->id();
-            $table->integer("referenceNumber");
-            $table->string("receiptType");
-            $table->decimal("amountTotal");
-            // llave foranea para registrar el id del usuario 
+            $table->integer("reference_number")->unique();
+            $table->string("receipt_type");
+            $table->decimal("amountTotal", 10, 2);
+
             $table->foreignId('user_id')->nullable()->constrained();
             $table->foreignId('provider_id')->constrained();
+
             $table->timestamps();
             $table->softDeletes();
         });

@@ -16,6 +16,27 @@ class ProductController extends Controller
     public function index()
     {
         //
+        $products = Product::with([
+            'category',
+            'laboratory',
+            'productPresentations' => function ($query) {
+                $query->with([
+                    'presentation',
+                    'batches' => function ($batchQuery) {
+                        $batchQuery->select(
+                            'id',
+                            'product_presentation_id',
+                            'batch_number',
+                            'creation_date',
+                            'expiration_date',
+                            'stock',
+                            'min_stock',
+                            'max_stock'
+                        );
+                    }
+                ]);
+            }
+        ])->get();
         $products = Product::with(['category', 'laboratory'])->get();
         return view('product.index', compact('products')); // Assuming you have a view for listing products
     }
@@ -43,8 +64,8 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
             'laboratory_id' => 'required|exists:laboratories,id',
             'description' => 'nullable|string|max:1000',
-            'purchase_price' => 'required|numeric|min:0',
-            'sale_price' => 'required|numeric|min:0',
+            'usage' => 'required|string|max:500',
+            'status' => 'boolean',
         ]);
         Product::create($request->all());
         return redirect()->route('products.index')->with('success', 'Product created successfully.');

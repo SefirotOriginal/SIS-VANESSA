@@ -37,9 +37,10 @@ class UsuariosController extends Controller
 
     public function index()
     {
-
-        $users = Usuario::where('id', '!=', auth()->id())->get(); //Excluye al usuario activo
+        // $users = Usuario::where('id', '!=', auth()->id())->get(); //Excluye al usuario activo
+        $users = Usuario::all();
         $roles  = Role::all();
+        // dd($users, $roles);
         return view('users.index', compact('users', 'roles'));
     }
 

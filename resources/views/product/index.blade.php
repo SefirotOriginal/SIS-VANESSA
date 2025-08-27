@@ -11,77 +11,32 @@
         <div class="card-body">
             <div class="row mt-4">
                 <a href="{{route('products.create')}}" class="btn btn-primary mb-3">
-                    <i class="fas fa-plus"></i> Crear product
+                    <i class="fas fa-plus"></i> Crear producto
                 </a>
                 <div class="table-responsive">
                     <table id="productsTable" class="table table-striped text-center" style="width:100%">
                         <thead class="custom-header">
                             <tr>
                                 <th>Nombre</th>
-                                <th>Código de barras</th>
                                 <th>Categoria</th>
                                 <th>Laboratorio</th>
-                                <th>Uso</th>
+                                <th>Código de barras</th>
                                 <th>Contenido</th>
                                 <th>Formula</th>
+                                <th>Numero de lote</th>
                                 <th>Stock</th>
-                                <th>Descripcion</th>
-                                <th>Presentacion</th>
-                                <th>Fecha de expiracion</th>
+                                <th>Stock minimo</th>
+                                <th>Stock maximo</th>
                                 <th>Precio de compra</th>
                                 <th>Precio de venta</th>
-                                <th>Acciones</th>
+                                <th>Fecha de expiracion</th>
+                                <th>Estado</th>
                             </tr>
                         </thead>
                         <tbody id="productsTableBody">
                             @foreach($products as $product)
 
-                            <tr>
-                                {{-- <tr>
-                            <td>product 1</td>
-                            <td>1234567890123</td>
-                            <td>Categoria 1</td>
-                            <td>Laboratorio 1</td>
-                            <td>Uso 1</td>
-                            <td>Contenido 1</td>
-                            <td>Formula 1</td>
-                            <td class="text-center">100</td>
-                            <td>Descripción del product 1</td>
-                            <td>Presentación 1</td>
-                            <td>2023-12-31</td>
-                            <td class="text-center">$10.00</td>
-                            <td class="text-center">$15.00</td>
-                            <td>
-                                <a href="#" class="btn btn-info btn-sm" title="Editar">
-                                    <i class="fas fa-pen
-                        @foreach ($product as $product)
-                        <tr>
-                            {{-- <td>{{ $product->name }}</td>
-                            <td class="text-center">{{ $product->barCode }}</td>
-                            <td>{{ $product->description }}</td>
-                            <td class="text-center">{{ $product->currentStock }}</td>
-                            <td class="text-center">${{ number_format($product->purchasePrice, 2) }}</td>
-                            <td class="text-center">${{ number_format($product->salePrice, 2) }}</td>
-                            <td>{{ $product->category ? $product->category->name : 'Sin categoría' }}</td>
-                            <td>{{ $product->laboratory ? $product->laboratory->name : 'Sin laboratorio' }}</td>
-                            <td>{{ $product->batch ? 'Lote #' . $product->batch->batchNumber : 'Sin lote' }}</td>
-                            <td>
-                                {{ $product->batch && $product->batch->expirationDate
-                                    ? \Carbon\Carbon::parse($product->batch->expirationDate)->format('d/m/Y')
-                                    : 'Sin fecha' }}
-                            </td>
-                            <td>
-                                <a href="{{ route('product.edicion', $product->id) }}" class="btn btn-info btn-sm" title="Editar">
-                                    <i class="fas fa-pen"></i>
-                                </a>
-                                <form id="formEliminar{{ $product->id }}" action="{{ route('product.eliminar', $product->id) }}" method="POST" style="display:inline-block">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="button" class="btn btn-danger btn-sm" title="Eliminar" onclick="confirmarEliminacion({{ $product->id }})">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
-                            </td> --}}
+                            {{-- <tr>
                                 <td>{{ $product->name }}</td>
                                 <td class="text-center">{{ $product->bar_code }}</td>
                                 <td>{{ $product->category ? $product->category->name : 'Sin categoría' }}</td>
@@ -100,12 +55,12 @@
                                 <td class="text-center">${{ number_format($product->purchasePrice, 2) }}</td>
                                 <td class="text-center">${{ number_format($product->salePrice, 2) }}</td>
                                 <td>
-                                    <a href="{{ route('product.edicion', $product->id) }}" class="btn btn-info btn-sm"
+                                    <a href="{{ route('products.edit', $product->id) }}" class="btn btn-info btn-sm"
                                         title="Editar">
                                         <i class="fas fa-pen"></i>
                                     </a>
                                     <form id="formEliminar{{ $product->id }}"
-                                        action="{{ route('product.eliminar', $product->id) }}" method="POST"
+                                        action="{{ route('products.destroy', $product->id) }}" method="POST"
                                         style="display:inline-block">
                                         @csrf
                                         @method('DELETE')
@@ -115,7 +70,36 @@
                                         </button>
                                     </form>
                                 </td>
-                            </tr>
+                            </tr> --}}
+                            @foreach($product->productPresentations as $presentation)
+                                    @foreach($presentation->batches as $batch)
+                                        <tr>
+                                            <td>{{ $product->name }}</td>
+                                            <td>{{ $product->category->name ?? 'N/A' }}</td>
+                                            <td>{{ $product->laboratory->name ?? 'N/A' }}</td>
+                                            <td>{{ $presentation->bar_code }}</td>
+                                            <td>{{ $presentation->content }}</td>
+                                            <td>{{ $presentation->formula }}</td>
+                                            <td>{{ $batch->batch_number }}</td>
+                                            <td>{{ $batch->stock }}</td>
+                                            <td>{{ $batch->min_stock }}</td>
+                                            <td>{{ $batch->max_stock }}</td>
+                                            <td>${{ number_format($presentation->purchase_price, 2) }}</td>
+                                            <td>${{ number_format($presentation->sale_price, 2) }}</td>
+                                            <td>{{ $batch->expiration_date->format('d/m/Y') }}</td>
+                                            <td>
+                                                @if($batch->stock <= $batch->min_stock)
+                                                    <span class="badge badge-danger">Crítico</span>
+                                                @elseif($batch->stock <= $batch->min_stock * 1.5)
+                                                    <span class="badge badge-warning">Bajo</span>
+                                                @else
+                                                    <span class="badge badge-success">Normal</span>
+                                                @endif
+                                            </td>
+
+                                        </tr>
+                                    @endforeach
+                                @endforeach
                             @endforeach
                         </tbody>
                     </table>
@@ -131,7 +115,6 @@
         html,
         body {
             height: 100%;
-            overflow: hidden;
         }
 
         .content-wrapper {

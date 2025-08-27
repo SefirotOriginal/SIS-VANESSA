@@ -21,24 +21,24 @@
                             <th>Número de lote</th>
                             <th>Fecha de expiración</th>
                             <th>Fecha de creación</th>
-                            <th>Fecha de expiración</th>
+                            <th>Fecha de actualización</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="batchesTableBody">
                         @foreach($batches as $batch)
                         <tr>
-                            <td>{{ $batch->number }}</td>
-                            <td>{{ $batch->expiration_date ? $batch->expiration_date->format('d/m/Y') : 'N/A' }}</td>
+                            <td>{{ $batch->batch_number }}</td>
+                            <td>{{ $batch->expiration_date ? $batch->expiration_date->format('d/m/Y H:i') : 'N/A' }}</td>
                             <td>{{ $batch->created_at->format('d/m/Y H:i') }}</td>
                             <td>{{ $batch->updated_at->format('d/m/Y H:i') }}</td>
                             <td>
-                                <a href="{{ route('batches.show', $batch) }}" class="btn btn-info btn-sm">
+                                {{-- <a href="{{ route('batches.show', $batch) }}" class="btn btn-info btn-sm">
                                     <i class="fas fa-eye"></i> Ver
-                                </a>
+                                </a> --}}
                                 <a href="{{ route('batches.edit', $batch) }}" class="btn btn-warning btn-sm">
                                     <i class="fas fa-edit"></i> Editar
-                                </a>4
+                                </a>
                             </td>
                         </tr>
                         @endforeach
@@ -56,7 +56,6 @@
 <style>
     html, body {
         height: 100%;
-        overflow: hidden;
     }
     .content-wrapper {
         background-color: #f1f1f1;

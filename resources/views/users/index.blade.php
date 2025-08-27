@@ -90,46 +90,7 @@
         console.log("Hi, I'm using the Laravel-AdminLTE package!");
     </script>
     <script>
-        new DataTable('#usuarioConsulta', {
-            language: {
-                url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
-            },
-            layout: {
-                top2End: function() {
-                    // Create a div for the toolbar
-                    let toolbar = document.createElement('div');
-                    toolbar.className = 'd-flex align-items-center mb-3';
-                    // Create the "Create Product" button
-                    let createButton = document.createElement('a');
-                    createButton.href = "{{ route('productos.creacion') }}"; // Ensure this route is correct
-                    createButton.className = 'btn btn-primary ml-2'; // Add margin-left for spacing
-                    createButton.innerText = 'Crear producto';
-                    // Append the button to the toolbar
-                    toolbar.appendChild(createButton);
-                    return toolbar; // Return the custom toolbar
-                },
-                topStart: 'search',
-                topEnd: null,
-                bottomStart: [{
-                        paging: {
-                            div: {
-                                className: 'layout-start',
-                                text: 'top2 A'
-                            }
-                        }
-                    },
-                    {
-                        info: {
-                            div: {
-                                className: 'layout-full',
-                                text: 'top2 B'
-                            }
-                        }
-                    }
-                ],
-                bottomEnd: null
-            }
-        });
+
     </script>
     <script>
         function alertaBorrar() {

@@ -23,6 +23,7 @@ class LaboratoryController extends Controller
     public function create()
     {
         //
+        return view('admin.laboratory.create');
     }
 
     /**
@@ -31,6 +32,14 @@ class LaboratoryController extends Controller
     public function store(Request $request)
     {
         //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'state' => 'nullable|string|max:255',
+            'contact' => 'nullable|string|max:255',
+        ]);
+
+        Laboratory::create($request->all());
+        return redirect()->route('laboratories.index')->with('success', 'Laboratory created successfully.');    
     }
 
     /**

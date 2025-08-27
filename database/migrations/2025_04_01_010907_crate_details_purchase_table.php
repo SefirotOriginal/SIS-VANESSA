@@ -12,14 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         //
-        Schema::create("detailsPurchases", function (Blueprint $table) {
+        Schema::create("purchase_details", function (Blueprint $table) {
             $table->id();
-            $table->decimal("purchasePrice"); 
-            $table->decimal("salePrice");
-            $table->integer("stock");
-            $table->decimal("amountTotal");
-            $table->foreignId('purchase_id')->nullable()->constrained();
-            $table->foreignId('product_id')->nullable()->constrained();
+
+            $table->foreignId('purchase_id')->constrained()->onDelete('cascade');
+            $table->foreignId('product_presentation_id')->constrained()->onDelete('restrict');
+            $table->foreignId('batch_id')->nullable()->constrained()->onDelete('set null');
+
+            $table->decimal("purchase_price", 10, 2);
+            $table->decimal("sale_price", 10, 2);
+            $table->integer("stock"); // Cantidad ingresada en esta compra
+            $table->decimal("amount_total", 10, 2);
+
             $table->timestamps();
             $table->softDeletes();
         });

@@ -12,19 +12,22 @@ return new class extends Migration
     public function up(): void
     {
         //Tabla de lotes
-        Schema::create("batches", function (Blueprint $table) {
+        Schema::create('batches', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_id')->constrained()->onDelete('cascade');
-            $table->string("batch_number");
-            $table->date("creation_date");
-            $table->date("expiration_date");
-            $table->integer("stock")->default(0);
-            $table->integer("min_stock")->default(0);
-            $table->integer("max_stock")->default(0);
+            $table->foreignId('product_presentation_id')->constrained()->onDelete('cascade');
+
+            $table->string('batch_number');
+            $table->date('creation_date');
+            $table->date('expiration_date');
+
+            $table->integer('stock')->default(0);
+            $table->integer('min_stock')->default(0);
+            $table->integer('max_stock')->default(0);
+
             $table->timestamps();
             $table->softDeletes();
 
-            $table->unique(['product_id', 'batch_number']);
+            $table->unique(['product_presentation_id', 'batch_number']);
         });
     }
 

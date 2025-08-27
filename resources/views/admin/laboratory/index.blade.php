@@ -31,16 +31,16 @@
                             <td>{{ $laboratory->state }}</td>
                             <td>{{ $laboratory->contact }}</td>
                             <td>
-                                <a href="{{ route('laboratories.show', $laboratory) }}" class="btn btn-info btn-sm">
+                                {{-- <a href="{{ route('laboratories.show', $laboratory) }}" class="btn btn-info btn-sm">
                                     <i class="fas fa-eye"></i> Ver
-                                </a>
+                                </a> --}}
                                 <a href="{{ route('laboratories.edit', $laboratory) }}" class="btn btn-warning btn-sm">
                                     <i class="fas fa-edit"></i> Editar
                                 </a>
-                                <form action="{{ route('laboratories.destroy', $laboratory) }}" method="POST" class="d-inline" id="formEliminar{{ $category->id }}">
+                                <form action="{{ route('laboratories.destroy', $laboratory) }}" method="POST" class="d-inline" id="formEliminar{{ $laboratory->id }}">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="button" class="btn btn-danger btn-sm" onclick="confirmarEliminacion({{ $category->id }})">
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="confirmarEliminacion({{ $laboratory->id }})">
                                         <i class="fas fa-trash  "></i> Eliminar
                                     </button>
                                 </form>

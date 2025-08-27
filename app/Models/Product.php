@@ -3,21 +3,20 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
+    use HasFactory, SoftDeletes;
     //
     protected $fillable = [
         'name',
-        'bar_code',
         'usage',
-        'content',
-        'formula',
         'description',
-        'presentation',
+        'category_id',
+        'laboratory_id',
         'status',
-        'purchase_price',
-        'sale_price',
     ];
 
     public function category()
@@ -28,5 +27,15 @@ class Product extends Model
     public function laboratory()
     {
         return $this->belongsTo(Laboratory::class);
+    }
+
+    public function productPresentations()
+    {
+        return $this->hasMany(ProductPresentation::class);
+    }
+
+    public function batches()
+    {
+        return $this->hasManyThrough(Batch::class, ProductPresentation::class);
     }
 }
