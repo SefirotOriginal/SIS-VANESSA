@@ -3,154 +3,102 @@
 @section('title', 'Editar Producto')
 
 @section('content_header')
-<h1><b>Edición de producto</b></h1>
+    <h1><b>Editar Producto</b></h1>
 @stop
 
 @section('content')
-<div class="card shadow">
-    <div class="card-body">
-        <form id="formProducto" action="{{ route('productos.edicion', $producto->id) }}" method="POST">
-        @csrf
-        @method('PUT')
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <label class="form-label">Código de barras</label>
-                    <input type="number" name="barCode" class="form-control" value="{{ $producto->barCode }}" readonly>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Nombre</label>
-                    <input type="text" name="name" class="form-control" value="{{ $producto->name }}" required>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Descripción</label>
-                    <input type="text" name="description"  class="form-control" value="{{ $producto->description }}">
-                </div>
-            </div>
+<form id="formEditProduct" action="{{ route('products.update', $product) }}" method="POST">
+    @csrf
+    @method('PUT')
 
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <label class="form-label">Stock actual</label>
-                    <input type="number" name="currentStock" class="form-control" value="{{ $producto->currentStock }}" required>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Stock mínimo</label>
-                    <input type="number" name="mintStock" class="form-control" value="{{ $producto->mintStock }}" required>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Stock máximo</label>
-                    <input type="number" name="maxStock" class="form-control" value="{{ $producto->maxStock }}" required>
-                </div>
-            </div>
+    {{-- Enviamos los IDs de los modelos que estamos editando de forma oculta --}}
+    @if($presentation)
+        <input type="hidden" name="presentation_to_edit_id" value="{{ $presentation->id }}">
+    @endif
+    @if($batch)
+        <input type="hidden" name="batch_to_edit_id" value="{{ $batch->id }}">
+    @endif
 
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <label class="form-label">Precio de compra</label>
-                    <input type="number" name="purchasePrice" class="form-control" step="0.01" value="{{ $producto->purchasePrice }}" required>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Precio de venta</label>
-                    <input type="number" name="salePrice" class="form-control" step="0.01" value="{{ $producto->salePrice }}" required>
-                </div>
-                <div class="col-md-4">
-                    <label for="category_id" class="form-label d-block">Categoría</label>
-                    <select name="category_id" id="category_id" class="form-select" required>
-                        @foreach($categorias as $categoria)
-                            <option value="{{ $categoria->id }}" {{ $producto->category_id == $categoria->id ? 'selected' : '' }}>
-                                {{ $categoria->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
+    {{-- Tarjeta 1: Información del Producto --}}
+    <div class="card shadow mb-4">
+        <div class="card-header"><h6 class="m-0 font-weight-bold text-primary">1. Datos del Producto</h6></div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4"><label>Nombre</label><input type="text" name="name" class="form-control" value="{{ old('name', $product->name) }}" required></div>
+                <div class="col-md-4"><label>Categoría</label><select name="category_id" class="form-control" required>@foreach($categories as $cat)<option value="{{$cat->id}}" {{$cat->id == $product->category_id ? 'selected' : ''}}>{{$cat->name}}</option>@endforeach</select></div>
+                <div class="col-md-4"><label>Laboratorio</label><select name="laboratory_id" class="form-control" required>@foreach($laboratories as $lab)<option value="{{$lab->id}}" {{$lab->id == $product->laboratory_id ? 'selected' : ''}}>{{$lab->name}}</option>@endforeach</select></div>
             </div>
-
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <label for="laboratory_id" class="form-label d-block">Laboratorio</label>
-                    <select name="laboratory_id" id="laboratory_id" class="form-select" required>
-                        @foreach($laboratorios as $lab)
-                            <option value="{{ $lab->id }}" {{ $producto->laboratory_id == $lab->id ? 'selected' : '' }}>
-                                {{ $lab->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label for="batch_id" class="form-label d-block">Lote</label>
-                    <select name="batch_id" id="batch_id" class="form-select" required>
-                        @foreach($lotes as $lote)
-                            <option value="{{ $lote->id }}" {{ $producto->batch_id == $lote->id ? 'selected' : '' }}>
-                                Lote #{{ $lote->batchNumber }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-            <div class="mt-4">
-                <button type="button" class="btn btn-success" id="btnGuardar">
-                    <i class="fas fa-save"></i> Guardar producto
-                </button>
-                <a href="{{ route('productos.consulta') }}" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i> Cancelar
-                </a>
-            </div>
-        </form>
+        </div>
     </div>
-</div>
-@stop
 
-@section('css')
-<style>
-    html, body {
-        height: 100%;
-        overflow-x: hidden;
-    }
-    .content-wrapper {
-        background-color: #f1f1f1;
-    }
-    .card-body {
-        background-color: #ffffff;
-    }
-    .form-label {
-        font-weight: bold;
-    }
-</style>
+    {{-- Tarjeta 2: Información de la Presentación --}}
+    <div class="card shadow mb-4">
+        <div class="card-header"><h6 class="m-0 font-weight-bold text-primary">2. Datos de la Presentación y Precio</h6></div>
+        <div class="card-body">
+            @if($presentation)
+                <div class="row">
+                    <div class="col-md-4"><label>Presentación</label><select name="presentation_id" class="form-control" required>@foreach($presentations as $pres)<option value="{{$pres->id}}" {{$pres->id == $presentation->presentation_id ? 'selected' : ''}}>{{$pres->name}}</option>@endforeach</select></div>
+                    <div class="col-md-4"><label>Código de Barras</label><input type="text" name="bar_code" class="form-control" value="{{ old('bar_code', $presentation->bar_code) }}" required></div>
+                    <div class="col-md-2"><label>Precio Compra</label><input type="number" name="purchase_price" class="form-control" step="0.01" min="0" value="{{ old('purchase_price', $presentation->purchase_price) }}" required></div>
+                    <div class="col-md-2"><label>Precio Venta</label><input type="number" name="sale_price" class="form-control" step="0.01" min="0" value="{{ old('sale_price', $presentation->sale_price) }}" required></div>
+                </div>
+            @else
+                <div class="alert alert-warning">Este producto no tiene una presentación registrada para editar.</div>
+            @endif
+        </div>
+    </div>
+
+    {{-- Tarjeta 3: Información del Lote Inicial --}}
+    <div class="card shadow mb-4">
+        <div class="card-header"><h6 class="m-0 font-weight-bold text-primary">3. Datos del Lote</h6></div>
+        <div class="card-body">
+            @if($batch)
+                <div class="row">
+                    <div class="col-md-4"><label>Número de Lote</label><input type="text" name="batch_number" class="form-control" value="{{ old('batch_number', $batch->batch_number) }}" required></div>
+                    <div class="col-md-4"><label>Fecha de Fabricación</label><input type="date" name="creation_date" class="form-control" value="{{ old('creation_date', $batch->creation_date->format('Y-m-d')) }}" required></div>
+                    <div class="col-md-4"><label>Fecha de Expiración</label><input type="date" name="expiration_date" class="form-control" value="{{ old('expiration_date', $batch->expiration_date->format('Y-m-d')) }}" required></div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-4"><label>Stock</label><input type="number" name="stock" class="form-control" min="0" value="{{ old('stock', $batch->stock) }}" required></div>
+                    <div class="col-md-4"><label>Stock Mínimo</label><input type="number" name="min_stock" class="form-control" min="0" value="{{ old('min_stock', $batch->min_stock) }}" required></div>
+                    <div class="col-md-4"><label>Stock Máximo</label><input type="number" name="max_stock" class="form-control" min="0" value="{{ old('max_stock', $batch->max_stock) }}" required></div>
+                </div>
+            @else
+                <div class="alert alert-warning">Esta presentación no tiene un lote registrado para editar.</div>
+            @endif
+        </div>
+    </div>
+    
+    <div class="d-flex justify-content-between my-4">
+        <a href="{{ route('products.index') }}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Cancelar</a>
+        <button type="button" id="btnUpdate" class="btn btn-success"><i class="fas fa-sync-alt"></i> Guardar Cambios</button>
+    </div>
+</form>
 @stop
 
 @section('js')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://code.jquery.com/jquery-3.7.1.js"> </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"> </script>
-<script src="https://cdn.datatables.net/2.2.2/js/dataTables.js"> </script>
-<script src="https://cdn.datatables.net/2.2.2/js/dataTables.bootstrap5.js"> </script>
 <script>
-    console.log("Hi, I'm using the Laravel-AdminLTE package!");
-</script>
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const form = document.getElementById('formProducto');
-        const btnGuardar = document.getElementById('btnGuardar');
-
-        btnGuardar.addEventListener('click', function () {
-            // Forzamos validación HTML5
-            if (!form.checkValidity()) {
-                form.reportValidity();
-                return;
+    document.getElementById('btnUpdate').addEventListener('click', function() {
+        const form = document.getElementById('formEditProduct');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+        Swal.fire({
+            title: '¿Guardar Cambios?',
+            text: 'Se actualizará la información del producto.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Sí, guardar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
             }
-
-            // Confirmación con SweetAlert
-            Swal.fire({
-                title: "¿Guardar los cambios realizados?",
-                icon: "question",
-                showCancelButton: true,
-                confirmButtonText: "Guardar",
-                cancelButtonText: "Cancelar"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    form.submit(); // Envía el formulario
-                }
-            });
         });
     });
 </script>
 @stop
-

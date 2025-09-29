@@ -2,104 +2,103 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\batch;
+use App\Models\Batch;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Laboratory;
+use App\Models\Presentation;
+use App\Models\ProductPresentation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
-        $products = Product::with([
-            'category',
-            'laboratory',
-            'productPresentations' => function ($query) {
-                $query->with([
-                    'presentation',
-                    'batches' => function ($batchQuery) {
-                        $batchQuery->select(
-                            'id',
-                            'product_presentation_id',
-                            'batch_number',
-                            'creation_date',
-                            'expiration_date',
-                            'stock',
-                            'min_stock',
-                            'max_stock'
-                        );
-                    }
-                ]);
-            }
-        ])->get();
-        $products = Product::with(['category', 'laboratory'])->get();
-        return view('product.index', compact('products')); // Assuming you have a view for listing products
+        $productPresentations = \App\Models\ProductPresentation::with(
+            'product.category',
+            'product.laboratory',
+            'presentation',
+            'batches'
+        )->get();
+        
+        return view('product.index', compact('productPresentations'));
+
+        /*
+        $products = Product::with('category', 'laboratory', 'productPresentations.batches', 'productPresentations.presentation')->get();
+        return view('product.index', compact('products'));
+        */
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
-        $batches = batch::all(); // Assuming you have a Product model
-        $categories = Category::all(); // Assuming you have a Category model
-        $laboratories = Laboratory::all(); // Assuming you have a Laboratory model
-        return view('product.create', compact('categories', 'laboratories', 'batches'));
+        //Lógica para llamar al wizard de Livewire
+        return view('product.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+
+    //Muestra el formulario para editar un producto y su primera presentación/lote.
+    public function edit(Product $product)
     {
-        //
+        // Cargamos el producto con su primera presentación y el primer lote de esa presentación
+        $presentation = $product->productPresentations()->first();
+        $batch = $presentation ? $presentation->batches()->first() : null;
+
+        // Pasamos los datos para los menús desplegables
+        $categories = Category::all();
+        $laboratories = Laboratory::all();
+        $presentations = Presentation::all();
+
+        return view('product.edit', compact('product', 'presentation', 'batch', 'categories', 'laboratories', 'presentations'));
+    }
+
+    //Actualiza el producto, su presentación y su lote.
+    public function update(Request $request, Product $product)
+    {
+        // Validación de todos los campos
         $request->validate([
             'name' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
             'laboratory_id' => 'required|exists:laboratories,id',
-            'description' => 'nullable|string|max:1000',
-            'usage' => 'required|string|max:500',
-            'status' => 'boolean',
+            'presentation_id' => 'required|exists:presentations,id',
+            'bar_code' => 'required|string|unique:product_presentations,bar_code,' . $request->presentation_to_edit_id,
+            'purchase_price' => 'required|numeric|min:0',
+            'sale_price' => 'required|numeric|min:0|gte:purchase_price',
+            'batch_number' => 'required|string|max:255',
+            'creation_date' => 'required|date',
+            'expiration_date' => 'required|date|after_or_equal:creation_date',
+            'stock' => 'required|integer|min:0',
+            'min_stock' => 'required|integer|min:0',
+            'max_stock' => 'required|integer|min:0|gte:min_stock',
         ]);
-        Product::create($request->all());
-        return redirect()->route('products.index')->with('success', 'Product created successfully.');
+
+        try {
+            DB::transaction(function () use ($request, $product) {
+                // Actualiza el Producto
+                $product->update($request->only(['name', 'category_id', 'laboratory_id']));
+
+                // Actualiza la Presentación
+                $productPresentation = ProductPresentation::find($request->presentation_to_edit_id);
+                if ($productPresentation) {
+                    $productPresentation->update($request->only(['presentation_id', 'bar_code', 'purchase_price', 'sale_price']));
+                }
+
+                // Actualiza el Lote
+                $batch = Batch::find($request->batch_to_edit_id);
+                if ($batch) {
+                    $batch->update($request->only(['batch_number', 'creation_date', 'expiration_date', 'stock', 'min_stock', 'max_stock']));
+                }
+            });
+        } catch (\Exception $e) {
+            return back()->with('error', 'Hubo un error al actualizar: ' . $e->getMessage())->withInput();
+        }
+
+        return redirect()->route('products.index')->with('success', 'Producto actualizado exitosamente.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show()
+    public function destroy(Product $product)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit()
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update()
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy()
-    {
-        //
+        $product->delete();
+        return redirect()->route('products.index')->with('success', 'Producto eliminado exitosamente.');
     }
 }

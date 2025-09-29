@@ -27,6 +27,9 @@ Route::get('ventas/devoluciones', [VentasController::class, 'devoluciones'])->na
 
 
 //Creación de products
+Route::resource('products', ProductController::class);
+//GONZALO: Probaré a dejar el controlador en manos de una sola linea general de Route.
+/*
 Route::get('products/create', [ProductController::class, 'create'])->name('products.create');
 Route::post('products', [ProductController::class, 'store'])->name('products.store');
 //Consulta de products
@@ -34,6 +37,7 @@ Route::get('products/index', [ProductController::class, 'index'])->name('product
 Route::get('products/{id}/edit', [ProductController::class, 'edit'])->name('products.edit');
 Route::put('products/{id}', [ProductController::class, 'update'])->name('products.update');
 Route::delete('products/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
+*/
 
 //Lotes
 Route::get('batches/index', [BatchController::class, 'index'])->name('batches.index');
@@ -44,12 +48,16 @@ Route::put('batches/{batch}', [BatchController::class, 'update'])->name('batches
 Route::delete('batches/{batch}', [BatchController::class, 'destroy'])->name('batches.destroy');
 
 //Categorías
+Route::resource('categories', CategoryController::class);
+//GONZALO: Probaré a dejar el controlador en manos de una sola linea general de Route.
+/*
 Route::get('categories/index', [CategoryController::class, 'index'])->name('categories.index');
 Route::get('categories/create', [CategoryController::class, 'create'])->name('categories.create');
 Route::post('categories', [CategoryController::class, 'store'])->name('categories.store');
 Route::get('categories/{category}/edit', [CategoryController::class, 'edit'])->name('categories.edit');
 Route::put('categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
 Route::delete('categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+*/
 
 //Laboratorios
 Route::get('laboratories/index', [LaboratoryController::class, 'index'])->name('laboratories.index');

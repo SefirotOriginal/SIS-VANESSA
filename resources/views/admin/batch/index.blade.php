@@ -33,12 +33,17 @@
                             <td>{{ $batch->created_at->format('d/m/Y H:i') }}</td>
                             <td>{{ $batch->updated_at->format('d/m/Y H:i') }}</td>
                             <td>
-                                {{-- <a href="{{ route('batches.show', $batch) }}" class="btn btn-info btn-sm">
-                                    <i class="fas fa-eye"></i> Ver
-                                </a> --}}
                                 <a href="{{ route('batches.edit', $batch) }}" class="btn btn-warning btn-sm">
                                     <i class="fas fa-edit"></i> Editar
                                 </a>
+
+                                <form action="{{ route('batches.destroy', $batch) }}" method="POST" class="d-inline" id="formEliminar{{ $batch->id }}">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="confirmarEliminacion({{ $batch->id }})">
+                                        <i class="fas fa-trash"></i> Eliminar
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                         @endforeach
@@ -135,5 +140,26 @@
             }
         });
     }
+</script>
+<script>
+// Este script revisa si hay un mensaje de éxito en la sesión
+@if (session('success'))
+    // Si existe, muestra una alerta 'toast' de SweetAlert2
+    const Toast = Swal.mixin({
+      toast: true,
+      position: 'top-end', // Posición en la esquina superior derecha
+      showConfirmButton: false,
+      timer: 3000, // Duración de 3 segundos
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.onmouseenter = Swal.stopTimer;
+        toast.onmouseleave = Swal.resumeTimer;
+      }
+    });
+    Toast.fire({
+      icon: 'success',
+      title: '{{ session('success') }}'
+    });
+@endif
 </script>
 @stop

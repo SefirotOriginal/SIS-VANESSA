@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Caregorias')
+@section('title', 'Categorias')
 
 @section('content_header')
 <h1><b>Categorías</b></h1>
@@ -140,5 +140,27 @@
             }
         });
     }
+</script>
+
+<script>
+// Este script revisa si hay un mensaje de éxito en la sesión
+@if (session('success'))
+    // Si existe, muestra una alerta 'toast' de SweetAlert2
+    const Toast = Swal.mixin({
+      toast: true,
+      position: 'top-end', // Posición en la esquina superior derecha
+      showConfirmButton: false,
+      timer: 3000, // Duración de 3 segundos
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.onmouseenter = Swal.stopTimer;
+        toast.onmouseleave = Swal.resumeTimer;
+      }
+    });
+    Toast.fire({
+      icon: 'success',
+      title: '{{ session('success') }}'
+    });
+@endif
 </script>
 @stop

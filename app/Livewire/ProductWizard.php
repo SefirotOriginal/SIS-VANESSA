@@ -169,8 +169,11 @@ class ProductWizard extends Component
             ]);
 
             DB::commit();
+            return redirect()->route('products.index')->with('success', 'Producto creado exitosamente.');
+            /*
             session()->flash('success', 'Producto creado exitosamente con su presentación y lote');
             $this->resetForm();
+            */
 
         } catch (\Exception $e) {
             DB::rollBack();

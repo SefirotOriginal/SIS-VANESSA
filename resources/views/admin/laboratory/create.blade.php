@@ -1,61 +1,89 @@
-
 @extends('adminlte::page')
 
 @section('title', 'Crear Laboratorio')
 
+@section('content_header')
+    <h1><b>Crear Nuevo Laboratorio</b></h1>
+@stop
+
 @section('content')
-    <div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
-        <div class="card shadow" style="width: 430px; border-radius: 20px;">
-            <div class="card-header text-center"
-                style="background: linear-gradient(90deg, #3b82f6 0%, #6d28d9 100%); border-top-left-radius: 20px; border-top-right-radius: 20px;">
-                <img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png" alt="Etiqueta" width="40" class="mb-2">
-                <h2 class="mb-0 text-white" style="font-weight: bold;">Crear Laboratorio</h2>
-            </div>
-            <div class="card-body"
-                style="background: #fff; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;">
-                <form action="{{ route('laboratories.store') }}" method="POST">
-                    @csrf
-                    <div class="mb-3">
-                        <label for="name" class="form-label" style="font-weight: 500;">Nombre</label>
-                        <input type="text" name="name" id="name" class="form-control"
-                            placeholder="Ingrese el nombre del laboratorio" required>
+    <div class="card shadow">
+        <div class="card-body">
+            <form id="formLabs" action="{{ route('laboratories.store') }}" method="POST">
+                @csrf
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="name" class="form-label">Nombre del Laboratorio</label>
+                        <input type="text" name="name" id="name" class="form-control" placeholder="Ej. Bayer" required>
                     </div>
-                    <div class="mb-3">
-                        <label for="state" class="form-label" style="font-weight: 500;">Estado</label>
-                        <input type="text" name="state" id="state" class="form-control"
-                            placeholder="Especifique el estado de procedencia del laboratorio" required>
+                    <div class="col-md-6">
+                        <label for="state" class="form-label">Estado</label>
+                        <select name="state" id="state" class="form-control" required>
+                            <option value="" selected disabled>Seleccione un estado</option>
+                            @foreach($states as $state)
+                                <option value="{{ $state }}">{{ $state }}</option>
+                            @endforeach
+                        </select>
                     </div>
-                    <div class="mb-3">
-                        <label for="contact" class="form-label" style="font-weight: 500;">Contacto</label>
-                        <input type="text" name="contact" id="contact" class="form-control"
-                            placeholder="Escriba el contacto del laboratorio" required>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label for="contact" class="form-label">Contacto (Teléfono o Email)</label>
+                        <input type="text" name="contact" id="contact" class="form-control" placeholder="Ej. 55-1234-5678 o contacto@bayer.com" required>
                     </div>
-                    <button type="submit" class="btn btn-success w-100" style="font-weight: bold;">
-                        <i class="fas fa-save"></i> Guardar laboratorio
+                </div>
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{{ route('laboratories.index') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Cancelar
+                    </a>
+                    <button type="button" class="btn btn-primary" id="btnSave">
+                        <i class="fas fa-save"></i> Guardar Laboratorio
                     </button>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
     </div>
 @stop
 
-@section('css')
-    <style>
-        .card-header img {
-            margin-bottom: 8px;
-        }
-
-        .form-control:focus {
-            box-shadow: 0 0 0 2px #3b82f6;
-        }
-    </style>
-@stop
-
 @section('js')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Contador de caracteres para descripción
-        document.getElementById('description').addEventListener('input', function() {
-            document.getElementById('descCount').textContent = this.value.length + '/200';
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('formLabs');
+            const btnSave = document.getElementById('btnSave');
+
+            btnSave.addEventListener('click', function() {
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+
+                Swal.fire({
+                    title: "¿Crear el laboratorio?",
+                    text: "Se registrará un nuevo laboratorio en el sistema.",
+                    icon: "question",
+                    showCancelButton: true,
+                    confirmButtonColor: '#007bff',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: "Sí, crear",
+                    cancelButtonText: "Cancelar"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
         });
+    </script>
+    {{-- Script para mostrar errores de validación del backend --}}
+    <script>
+        @if ($errors->any())
+            Swal.fire({
+                title: 'Error al crear el laboratorio',
+                icon: 'error',
+                html: `{!! implode('<br>', $errors->all()) !!}`,
+                confirmButtonText: 'Cerrar'
+            });
+        @endif
     </script>
 @stop
