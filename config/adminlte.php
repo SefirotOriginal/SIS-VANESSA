@@ -350,6 +350,11 @@ return [
                     'text' => 'laboratorios',
                     'icon' => 'fas fa-fw fa-industry',
                     'route' => 'laboratories.index',
+                ],
+                [
+                    'text' => 'Presentaciones',
+                    'icon' => 'fas fa-fw fa-pills',
+                    'route' => 'presentations.index',
                 ]
             ],
         ],

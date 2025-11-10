@@ -67,7 +67,13 @@ Route::get('laboratories/{laboratory}/edit', [LaboratoryController::class, 'edit
 Route::put('laboratories/{laboratory}', [LaboratoryController::class, 'update'])->name('laboratories.update');
 Route::delete('laboratories/{laboratory}', [LaboratoryController::class, 'destroy'])->name('laboratories.destroy');
 
-//
+// Presentaciones
+Route::get('presentations/index', [App\Http\Controllers\PresentationController::class, 'index'])->name('presentations.index');
+Route::get('presentations/create', [App\Http\Controllers\PresentationController::class, 'create'])->name('presentations.create');
+Route::post('presentations', [App\Http\Controllers\PresentationController::class, 'store'])->name('presentations.store');
+Route::get('presentations/{presentation}/edit', [App\Http\Controllers\PresentationController::class, 'edit'])->name('presentations.edit');
+Route::put('presentations/{presentation}', [App\Http\Controllers\PresentationController::class, 'update'])->name('presentations.update');
+Route::delete('presentations/{presentation}', [App\Http\Controllers\PresentationController::class, 'destroy'])->name('presentations.destroy');
 
 //Creación de Usuarios
 Route::get('users/create', [UsuariosController::class, 'create'])->name('users.create');

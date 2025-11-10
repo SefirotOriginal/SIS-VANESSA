@@ -10,7 +10,7 @@
     <div class="card shadow">
         <div class="card-body">
             <div class="row mt-4">
-                <a href="{{route('products.create')}}" class="btn btn-primary mb-3">
+                <a href="{{ route('products.create') }}" class="btn btn-primary mb-3">
                     <i class="fas fa-plus"></i> Crear producto
                 </a>
                 <div class="table-responsive">
@@ -22,6 +22,8 @@
                                 <th></th> {{-- Columna para el control --}}
                                 <th>Nombre del Producto</th>
                                 <th>Presentación</th>
+                                <th>Contenido</th>
+                                <th>Fórmula</th>
                                 <th>Laboratorio</th>
                                 <th>Código de Barras</th>
                                 <th>Precio Venta</th>
@@ -29,24 +31,31 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($productPresentations as $presentation)
-                                {{--CONDICIÓN PARA IGNORAR REGISTROS HUÉRFANOS --}}
-                                @if($presentation->product)
+                            @foreach ($productPresentations as $presentation)
+                                {{-- CONDICIÓN PARA IGNORAR REGISTROS NULOS --}}
+                                @if ($presentation->product)
                                     <tr data-batches="{{ json_encode($presentation->batches) }}">
                                         <td class="dt-control"></td>
                                         <td>{{ $presentation->product->name }}</td>
                                         <td>{{ $presentation->presentation->name }}</td>
+                                        <td>{{ $presentation->content ?? '-' }}</td>
+                                        <td>{{ $presentation->formula ?? '-' }}</td>
                                         <td>{{ $presentation->product->laboratory->name ?? 'N/A' }}</td>
                                         <td>{{ $presentation->bar_code }}</td>
                                         <td>${{ number_format($presentation->sale_price, 2) }}</td>
                                         <td>
-                                            <a href="{{ route('products.edit', $presentation->product->id) }}" class="btn btn-warning btn-sm" title="Editar Producto">
+                                            <a href="{{ route('products.edit', $presentation->product->id) }}"
+                                                class="btn btn-warning btn-sm" title="Editar Producto">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <form action="{{ route('products.destroy', $presentation->product->id) }}" method="POST" class="d-inline" id="formEliminar{{ $presentation->product->id }}">
+                                            <form action="{{ route('products.destroy', $presentation->product->id) }}"
+                                                method="POST" class="d-inline"
+                                                id="formEliminar{{ $presentation->product->id }}">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="button" class="btn btn-danger btn-sm" title="Eliminar Producto" onclick="confirmarEliminacion({{ $presentation->product->id }})">
+                                                <button type="button" class="btn btn-danger btn-sm"
+                                                    title="Eliminar Producto"
+                                                    onclick="confirmarEliminacion({{ $presentation->product->id }})">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
@@ -66,18 +75,39 @@
     {{-- Se mantiene tu CSS original --}}
     <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.css">
     <style>
-        html, body { height: 100%; }
-        .content-wrapper { background-color: #f1f1f1; }
-        .card-body { background-color: #ffffff; }
-        .custom-header { background-color: #0077B6; color: white; }
-        .custom-header th { white-space: nowrap; }
-        .card-body { padding-top: 0; padding-bottom: 1rem; }
-        
+        html,
+        body {
+            height: 100%;
+        }
+
+        .content-wrapper {
+            background-color: #f1f1f1;
+        }
+
+        .card-body {
+            background-color: #ffffff;
+        }
+
+        .custom-header {
+            background-color: #0077B6;
+            color: white;
+        }
+
+        .custom-header th {
+            white-space: nowrap;
+        }
+
+        .card-body {
+            padding-top: 0;
+            padding-bottom: 1rem;
+        }
+
         /* Estilos para el ícono de expandir/colapsar */
         td.dt-control {
             background: url('https://datatables.net/examples/resources/details_open.png') no-repeat center center;
             cursor: pointer;
         }
+
         tr.dt-hasChild td.dt-control {
             background: url('https://datatables.net/examples/resources/details_close.png') no-repeat center center;
         }
@@ -99,7 +129,9 @@
                 return '<div class="p-3 text-center">No hay lotes registrados para esta presentación.</div>';
             }
             let batchRows = batchesData.map(batch => {
-                let statusBadge = batch.stock <= batch.min_stock ? '<span class="badge bg-danger">Crítico</span>' : (batch.stock <= batch.min_stock * 1.5 ? '<span class="badge bg-warning">Bajo</span>' : '<span class="badge bg-success">Normal</span>');
+                let statusBadge = batch.stock <= batch.min_stock ? '<span class="badge bg-danger">Crítico</span>' :
+                    (batch.stock <= batch.min_stock * 1.5 ? '<span class="badge bg-warning">Bajo</span>' :
+                        '<span class="badge bg-success">Normal</span>');
                 let expDate = new Date(batch.expiration_date).toLocaleDateString('es-ES');
                 return `<tr>
                             <td>${batch.batch_number}</td>
@@ -113,7 +145,9 @@
                             <thead class="thead-light">
                                 <tr><th>N° Lote</th><th>Stock</th><th>Fecha Exp.</th><th>Estado</th></tr>
                             </thead>
-                            <tbody>${batchRows}</tbody>
+                            <tbody>
+                                ${batchRows}
+                            </tbody>
                         </table>
                     </div>`;
         }
@@ -121,12 +155,13 @@
         $(document).ready(function() {
             // Se mantiene tu configuración original de DataTables
             const table = $('#productsTable').DataTable({
-                language: { url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json' },
+                language: {
+                    url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+                },
                 layout: {
                     topStart: 'search',
                     topEnd: null,
-                    bottomStart: [
-                        {
+                    bottomStart: [{
                             paging: {
                                 div: {
                                     className: 'layout-start',
@@ -148,7 +183,7 @@
             });
 
             // Listener para el clic en el botón de expandir
-            $('#productsTable tbody').on('click', 'td.dt-control', function () {
+            $('#productsTable tbody').on('click', 'td.dt-control', function() {
                 let tr = $(this).closest('tr');
                 let row = table.row(tr);
                 if (row.child.isShown()) {

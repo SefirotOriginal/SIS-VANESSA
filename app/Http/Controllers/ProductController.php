@@ -21,7 +21,7 @@ class ProductController extends Controller
             'presentation',
             'batches'
         )->get();
-        
+
         return view('product.index', compact('productPresentations'));
 
         /*
@@ -62,6 +62,8 @@ class ProductController extends Controller
             'laboratory_id' => 'required|exists:laboratories,id',
             'presentation_id' => 'required|exists:presentations,id',
             'bar_code' => 'required|string|unique:product_presentations,bar_code,' . $request->presentation_to_edit_id,
+            'content' => 'nullable|string|max:255',
+            'formula' => 'nullable|string|max:255',
             'purchase_price' => 'required|numeric|min:0',
             'sale_price' => 'required|numeric|min:0|gte:purchase_price',
             'batch_number' => 'required|string|max:255',
@@ -80,7 +82,7 @@ class ProductController extends Controller
                 // Actualiza la Presentación
                 $productPresentation = ProductPresentation::find($request->presentation_to_edit_id);
                 if ($productPresentation) {
-                    $productPresentation->update($request->only(['presentation_id', 'bar_code', 'purchase_price', 'sale_price']));
+                    $productPresentation->update($request->only(['presentation_id', 'bar_code', 'content', 'formula', 'purchase_price', 'sale_price']));
                 }
 
                 // Actualiza el Lote

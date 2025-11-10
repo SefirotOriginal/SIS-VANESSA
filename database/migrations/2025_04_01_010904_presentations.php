@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('name'); // Ej: Tableta, Jarabe, Cápsula, etc.
             $table->text('description')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
