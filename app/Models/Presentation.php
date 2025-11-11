@@ -4,12 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-// SoftDeletes
-
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Presentation extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     //
     protected $fillable = [
@@ -18,5 +17,4 @@ class Presentation extends Model
     ];
 
     protected $table = 'presentations';
-
 }

@@ -60,7 +60,7 @@
 <style>
     html, body {
         height: 100%;
-        overflow: hidden;
+        /* overflow: hidden; */
     }
     .content-wrapper {
         background-color: #f1f1f1;

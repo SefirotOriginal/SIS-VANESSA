@@ -21,8 +21,13 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('password'), // Ensure to hash the password
         ]);
 
+
+
+
         $this->call([
             RolesAndPermissions::class,
+            ProductsSeeder::class,
+
             // Add other seeders here
         ]);
     }
