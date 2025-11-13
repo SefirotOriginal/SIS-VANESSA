@@ -2,81 +2,78 @@
 
 @section('title', 'Consultar Usuarios')
 
+@section('content_header')
+    <div class="d-flex justify-content-between align-items-center">
+        <h1><b>Usuarios</b></h1>
+        <a href="{{ route('users.create') }}" class="btn btn-primary">
+            <i class="fas fa-user-plus"></i> Crear Usuario
+        </a>
+    </div>
+@stop
+
 @section('content')
-    <div class="container-fluid" style="max-height: 75vh; overflow-y: auto;">
-        <div class="content-header">
-            <div class="container-fluid px-0">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h1 class="m-0"><b>Consulta de usuarios</b></h1>
-                    <a href="{{ route('users.create') }}" class="btn btn-primary">
-                        <i class="fas fa-user-plus"></i> Crear usuario
-                    </a>
-                </div>
-            </div>
-        </div>
+    <div class="container-fluid px-0" style="max-height: calc(100vh - 150px); overflow-y: auto;">
+
+        @if(session('success'))
+            {{-- El JS al final se encargará de mostrar esto --}}
+        @endif
 
         <div class="row">
-            @foreach ($users as $user)
+            @forelse ($users as $user)
                 <div class="col-md-6 mb-3">
-                    <div class="card shadow">
+                    <div class="card shadow h-100">
                         <div class="card-body d-flex flex-column">
                             <div class="d-flex align-items-center mb-3">
-                                <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Perfil"
-                                    class="rounded-circle me-3" width="60" height="60">
+                                <img src="{{ $user->adminlte_image() }}" alt="Perfil"
+                                    class="rounded-circle me-3" width="60" height="60" style="object-fit: cover;">
+
                                 <div class="d-flex flex-column">
-                                    <h5 class="card-title mb-2"><b>{{ $user->name }}</b></h5>
-                                    <span class="text-muted">{{ $user->roles->pluck('name')->join(', ') ?: 'Sin rol' }}</span>
+                                    <h5 class="card-title mb-1"><b>{{ $user->name }}</b></h5>
+                                    <span class="text-muted small">{{ $user->roles->pluck('name')->join(', ') ?: 'Sin rol' }}</span>
                                 </div>
                             </div>
-                            <p class="card-text"><b>Correo:</b> {{ $user->email }}</p>
-                            <p class="card-text"><b>Número telefónico:</b> {{ $user->phoneNumber ?? 'No registrado' }}</p>
-                            <p class="card-text"><b>Fecha de registro:</b> {{ $user->created_at->format('d-m-Y') }}</p>
-                            <p class="card-text"><b>Estado:</b>
-                                <span class="badge {{ $user->activo ? 'bg-success' : 'bg-danger' }}">
-                                    {{ $user->activo ? 'Activo' : 'Inactivo' }}
+                            <p class="card-text mb-1"><small><b>Correo:</b> {{ $user->email }}</small></p>
+                            <p class="card-text mb-1"><small><b>Teléfono:</b> {{ $user->phoneNumber ?? 'No registrado' }}</small></p>
+                            <p class="card-text mb-1"><small><b>Registro:</b> {{ $user->created_at->format('d/m/Y') }}</small></p>
+
+                            <p class="card-text mb-3"><b>Estado:</b>
+                                <span class="badge {{ $user->email_verified_at ? 'bg-success' : 'bg-danger' }}">
+                                    {{ $user->email_verified_at ? 'Activo' : 'Inactivo' }}
                                 </span>
                             </p>
-                            <div class="mt-auto d-flex justify-content-end">
-                                <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-primary"
-                                    title="Editar">
-                                    Editar
-                                </a>
-                            </div>
+
+                            @if(auth()->id() !== $user->id)
+                                <div class="mt-auto d-flex justify-content-end gap-2">
+                                    <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-warning" title="Editar">
+                                        <i class="fas fa-edit"></i> Editar
+                                    </a>
+                                    
+                                    <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="d-inline" id="formEliminar{{ $user->id }}">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="button" class="btn btn-sm btn-danger" title="Eliminar" onclick="confirmarEliminacion({{ $user->id }})">
+                                            <i class="fas fa-trash"></i> Eliminar
+                                        </button>
+                                    </form>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
-            @endforeach
+            @empty
+                <div class="col-12">
+                    <p class="text-center text-muted">No hay usuarios registrados.</p>
+                </div>
+            @endforelse
         </div>
     </div>
 @stop
 
 @section('css')
-    <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.css">
     <style>
-        html,
-        body {
-            height: 100%;
-            overflow: hidden;
-        }
-
-        .content-wrapper {
-            background-color: #f1f1f1;
-        }
-
-        .card-body {
-            background-color: #ffffff;
-        }
-
-        .custom-header {
-            background-color: #0077B6;
-            color: white;
-        }
-    </style>
-    <style>
-        .custom-header th {
-            white-space: nowrap;
-            /* Evita que el texto se divida */
-        }
+        html, body { height: 100%; overflow: hidden;}
+        .content-wrapper { background-color: #f1f1f1; }
+        .card-body { background-color: #ffffff; }
     </style>
 @stop
 
@@ -84,34 +81,38 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.datatables.net/2.2.2/js/dataTables.js"></script>
-    <script src="https://cdn.datatables.net/2.2.2/js/dataTables.bootstrap5.js"></script>
     <script>
-        console.log("Hi, I'm using the Laravel-AdminLTE package!");
-    </script>
-    <script>
-
-    </script>
-    <script>
-        function alertaBorrar() {
+        // Función estándar para confirmar eliminación
+        function confirmarEliminacion(id) {
             Swal.fire({
                 title: "¿Estás seguro?",
-                text: "¡Esta acción no se podrá revertir!",
+                text: "¡Esta acción no se puede deshacer!",
                 icon: "warning",
                 showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Sí, ¡Eliminar!",
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Sí, eliminar",
                 cancelButtonText: "Cancelar"
             }).then((result) => {
                 if (result.isConfirmed) {
-                    Swal.fire({
-                        title: "¡Eliminado!",
-                        text: "El producto se ha eliminado de la tabla.",
-                        icon: "success"
-                    });
+                    document.getElementById('formEliminar' + id).submit();
                 }
             });
         }
+
+        // Script estándar para notificación toast
+        @if (session('success'))
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+            });
+            Toast.fire({
+                icon: 'success',
+                title: '{{ session('success') }}'
+            });
+        @endif
     </script>
 @stop

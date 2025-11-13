@@ -17,6 +17,7 @@ class Usuario extends Model
         'password',  
         'remember_token',
         'created_at',    
-        'updated_at',  
+        'updated_at',
+        'profile_photo_path',  
     ];
 }

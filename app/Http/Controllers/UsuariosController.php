@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Role;
 use App\Models\User as Usuario;
+use Illuminate\Support\Facades\Storage;
 
 class UsuariosController extends Controller
 {
@@ -14,7 +15,7 @@ class UsuariosController extends Controller
         return view('users.create' , compact('roles'));
     }
 
-    public function store(Request $request)
+public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
@@ -22,13 +23,21 @@ class UsuariosController extends Controller
             'phoneNumber' => 'nullable|string|regex:/^\+?[0-9]{7,15}$/|unique:users,phoneNumber',
             'password' => 'required|string|min:8',
             'role' => 'required|string|exists:roles,name',
+            'imagenPerfil' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048' 
         ]);
+
+        $path = null;
+        if ($request->hasFile('imagenPerfil')) {
+            // Guarda la imagen en 'storage/app/public/profile_pictures'
+            $path = $request->file('imagenPerfil')->store('profile_pictures', 'public');
+        }
 
         $user = Usuario::create([
             'name' => $request->name,
             'email' => $request->email,
             'phoneNumber' => $request->phoneNumber,
             'password' => bcrypt($request->password),
+            'profile_photo_path' => $path
         ]);
 
         $user->assignRole($request->role);
@@ -71,6 +80,7 @@ class UsuariosController extends Controller
             'phoneNumber' => 'nullable|string|regex:/^\+?[0-9]{7,15}$/|unique:users,phoneNumber,' . $id,
             'password' => 'nullable|string|min:8',
             'role' => 'required|string|exists:roles,name',
+            'imagenPerfil' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
         $usuario->name = $request->name;
@@ -79,19 +89,38 @@ class UsuariosController extends Controller
         if ($request->filled('password')) {
             $usuario->password = bcrypt($request->password);
         }
+
+        if ($request->hasFile('imagenPerfil')) {
+            // Borra la foto anterior
+            if ($usuario->profile_photo_path) {
+                Storage::disk('public')->delete($usuario->profile_photo_path);
+            }
+            // Guarda la nueva foto y actualiza el path
+            $path = $request->file('imagenPerfil')->store('profile_pictures', 'public');
+            $usuario->profile_photo_path = $path;
+        }
+
         $usuario->save();
 
         $usuario->syncRoles($request->role);
-        return redirect()->route('users.index')->with('success', 'Usuario actualizado correctamente.');
+        return redirect()->route('users.index')->with('success', 'Usuario actualizado exitosamente.');
     }
 
-    public function eliminar($id)
+
+    public function destroy($id)
     {
-        if ($id == auth()->id()) {
-            return redirect()->back()->with('error', 'No puedes eliminarte a ti mismo.');
+        $user = Usuario::findOrFail($id); 
+
+        // Lógica para prevenir auto-eliminación
+        if ($user->id == auth()->id()) {
+            return redirect()->route('users.index')->with('error', 'No puedes eliminarte a ti mismo.');
         }
-        $usuario = Usuario::findOrFail($id);
-        $usuario->delete();
-        return redirect()->route('users.index')->with('success', 'Usuario eliminado correctamente.');
+
+        if ($user->profile_photo_path) {
+            Storage::disk('public')->delete($user->profile_photo_path);
+        }
+
+        $user->delete();
+        return redirect()->route('users.index')->with('success', 'Usuario eliminado exitosamente.');
     }
 }

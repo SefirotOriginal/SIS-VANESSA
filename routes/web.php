@@ -82,8 +82,12 @@ Route::post('users', [UsuariosController::class, 'store'])->name('users.store');
 Route::get('users/index', [UsuariosController::class, 'index'])->name('users.index');
 Route::get('users/{id}/edit', [UsuariosController::class, 'edit'])->name('users.edit');
 Route::put('users/{id}/update', [UsuariosController::class, 'update'])->name('users.update');
+//Eliminación de Usuarios
+Route::delete('users/{id}', [UsuariosController::class, 'destroy'])->name('users.destroy');
 //Edición de Usuarios
 Route::get('/perfil', [UsuariosController::class, 'perfil'])->name('usuarios.perfil');
+
+
 // Route::get('usuarios/{id}/edicion', [UsuariosController::class, 'edicion'])->name('usuarios.edicion');
 // Route::put('usuarios/{id}/edicion', [UsuariosController::class, 'actualizar'])->name('usuarios.actualizar');
 // //Eliminación de Usuarios

@@ -36,6 +36,7 @@ class User extends Authenticatable
         'updated_at',
         'phoneNumber',
         "role_id",
+        'profile_photo_path',
     ];
 
     /**
@@ -72,12 +73,19 @@ class User extends Authenticatable
             ->implode('');
     }
 
-    public function adminlte_image(){
-        return 'https://gravatar.com/avatar/8b5b92eddf8bbfbd22bbe20343c6ac2e?s=200&d=retro&r=x';
+    public function adminlte_image()
+    {
+        // Revisa si el usuario tiene una foto guardada en la base de datos
+        if ($this->profile_photo_path) {
+            return asset('storage/' . $this->profile_photo_path);
+        }
+
+        // Si no tiene foto, retorna la imagen por defecto
+        return 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
     }
 
     public function adminlte_desc(){
-        return 'Administrador';
+        return $this->roles->pluck('name')->first() ?? 'Usuario';
     }
 
     public function role(){

@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Role;
+//use App\Models\Role;  Spatie ya lo importa
+use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Http\Request;
@@ -38,17 +39,20 @@ class RoleController extends Controller
         $validated = $request->validate([
             'name' => 'required|unique:roles,name',
             'guard_name' => 'required',
-            'permissions' => 'array',
+            'permissions' => 'nullable|array', // Es 'nullable' por si no se marca ningun rol
         ]);
+        
         $role = Role::create([
             'name' => $validated['name'],
             'guard_name' => $validated['guard_name'],
         ]);
-        if (!empty($request->permissions)) {
-            $role->syncPermissions($request->permissions);
+        
+        // 'permissions' puede no existir si no se marcó ninguno
+        if (!empty($validated['permissions'])) {
+            $role->syncPermissions($validated['permissions']);
         }
-        // Role::create($validated);
-        return redirect()->route('roles.index')->with('success', 'Role created successfully.');
+        
+        return redirect()->route('roles.index')->with('success', 'Rol creado exitosamente.');
     }
 
     /**
@@ -64,15 +68,14 @@ class RoleController extends Controller
      */
     public function edit($id)
     {
-        //
+        $role = Role::find($id);
+        
+        // Obtenemos TODOS los permisos
+        $permissions = Permission::all();
 
-     $role = Role::find($id);
-        $permission = Permission::get();
-        $rolePermissions = DB::table("role_has_permissions")->where("role_has_permissions.role_id",$id)
-            ->pluck('role_has_permissions.permission_id','role_has_permissions.permission_id')
-            ->all();
-
-        return view('roles.edit',compact('role','permission','rolePermissions'));
+        // Pasamos solo el rol y la lista de todos los permisos
+        // La vista 'edit.blade.php' se encarga de ver cuáles están marcados
+        return view('roles.edit', compact('role', 'permissions'));
     }
 
     /**
@@ -82,22 +85,24 @@ class RoleController extends Controller
     {
         $this->validate($request, [
             'name' => 'required',
-            'permission' => 'required',
+            // Validamos 'permissions'
+            'permissions' => 'nullable|array' 
         ]);
 
         $role = Role::find($id);
         $role->name = $request->input('name');
         $role->save();
 
-        $permissionsID = array_map(
-            function($value) { return (int)$value; },
-            $request->input('permission')
-        );
+        // Obtenemos el array de nombres de la vista.
+        // Si el usuario desmarca todos, $request->input('permissions') será null.
+        // Se usa '?? []' para asegurar de que sea un array vacío en ese caso.
+        $permissions = $request->input('permissions') ?? [];
 
-        $role->syncPermissions($permissionsID);
+        // Sincronizamos usando el array de nombres.
+        $role->syncPermissions($permissions); 
 
         return redirect()->route('roles.index')
-                        ->with('success','Role updated successfully');
+                        ->with('success','Rol actualizado exitosamente.');
     }
 
     /**
@@ -106,7 +111,7 @@ class RoleController extends Controller
     public function destroy($id)
     {
         try {
-            $role = Role::findOrFail($id); // Asegúrate de importar el modelo Role
+            $role = Role::findOrFail($id);
             $role->delete();
             return redirect()->route('roles.index')->with('success', 'Rol eliminado exitosamente.');
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
