@@ -11,6 +11,9 @@ use App\Models\Batch;
 use App\Models\VentaDetalle;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Barryvdh\DomPDF\Facade\Pdf;
+
+
 
 class VentasController extends Controller
 {
@@ -171,5 +174,22 @@ class VentasController extends Controller
             Log::error("Error al devolver venta: " . $e->getMessage());
             return back()->withErrors(['error' => 'Error al procesar la devolución: ' . $e->getMessage()]);
         }
+    }
+
+    // Permite generar un archivo .PDF como recibo de venta
+    public function imprimirRecibo($id)
+    {
+        $venta = Venta::with([
+            'usuario',
+            'detalles',
+            'detalles.productPresentation.product',
+            'detalles.productPresentation.presentation'
+        ])->findOrFail($id);
+
+        $pdf = Pdf::loadView('ventas.recibo', compact('venta'));
+        return $pdf->stream("recibo-{$venta->referenceNumber}.pdf");
+        
+        // Opcional: Para forzar la descarga
+        // return $pdf->download("recibo-{$venta->referenceNumber}.pdf");
     }
 }

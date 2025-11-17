@@ -63,9 +63,9 @@
                         <h5>Cantidad: <strong id="totalPagar">${{ number_format($venta->amountPayment, 2) }}</strong></h5>
                         <h5 class="mt-3">Cambio: <strong id="cambio" class="text-warning">${{ number_format($venta->amountExchange, 2) }}</strong></h5>
                         
-                        <button type="submit" class="btn btn-warning mt-4 w-100">
-                            <i class="fas fa-receipt"></i> Imprimir
-                        </button>
+                        <a href="{{ route('ventas.recibo', $venta->id) }}" target="_blank" class="btn btn-warning mt-4 w-100">
+                            <i class="fas fa-receipt"></i> Imprimir Recibo
+                        </a>
 
                         <a href="{{ route('ventas.devoluciones', $venta->id) }}" class="btn btn-danger mt-4 w-100">
                             <i class="fas fa-strikethrough"></i> Devolución

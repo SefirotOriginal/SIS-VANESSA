@@ -27,6 +27,8 @@ Route::get('ventas/detalles/{id}', [VentasController::class, 'detalles'])->name(
 Route::get('ventas/devoluciones/{id}', [VentasController::class, 'devoluciones'])->name('ventas.devoluciones');
 // Procesa la devolución (la acción de devolver)
 Route::post('ventas/devoluciones/{id}', [VentasController::class, 'procesarDevolucion'])->name('ventas.devolucion.procesar');
+// Permite generar un archivo .PDF como recibo de venta
+Route::get('/ventas/recibo/{id}', [VentasController::class, 'imprimirRecibo'])->name('ventas.recibo');
 
 
 //Creación de products
