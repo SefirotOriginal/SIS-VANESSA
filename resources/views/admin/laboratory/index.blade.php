@@ -58,10 +58,6 @@
 @section('css')
 <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.css">
 <style>
-    html, body {
-        height: 100%;
-        overflow: hidden;
-    }
     .content-wrapper {
         background-color: #f1f1f1;
     }

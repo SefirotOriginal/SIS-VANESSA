@@ -59,6 +59,7 @@
             <div class="col-md-3">
                 <div class="card border-info">
                     <div class="card-body">
+                        <h5>Método de pago: <strong id="metodoPago">{{ $venta->receiptType }}</strong></h5>
                         <h5>Total: <strong id="totalPagar" class="text-success">${{ number_format($venta->amountTotal, 2) }}</strong></h5>
                         <h5>Cantidad: <strong id="totalPagar">${{ number_format($venta->amountPayment, 2) }}</strong></h5>
                         <h5 class="mt-3">Cambio: <strong id="cambio" class="text-warning">${{ number_format($venta->amountExchange, 2) }}</strong></h5>

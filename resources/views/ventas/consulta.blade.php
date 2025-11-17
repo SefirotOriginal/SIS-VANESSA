@@ -79,7 +79,29 @@
             url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
         },
         pageLength: 5,
-        lengthChange: false
+        lengthChange: false,
+        layout: {
+            topStart: 'search',
+            topEnd: null,
+            bottomStart: [{
+                paging: {
+                    div: {
+                        className: 'layout-start',
+                        text: 'top2 A'
+                    }
+                }
+                },
+                {
+                    info: {
+                        div: {
+                            className: 'layout-full',
+                            text: 'top2 B'
+                        }
+                    }
+                }
+            ],
+            bottomEnd: null
+        }
         });
     </script>
 @stop

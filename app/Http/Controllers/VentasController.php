@@ -97,7 +97,7 @@ class VentasController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('ventas.consulta')->with('success', 'Venta registrada exitosamente. Folio: ' . $folio);
+            return back()->with('success', 'Venta registrada exitosamente. Folio: ' . $folio);
 
         } catch (\Exception $e) {
             DB::rollBack();

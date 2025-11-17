@@ -20,9 +20,9 @@
                         @foreach ($productos as $producto)
                             <option 
                                 value="{{ $producto->id }}" 
-                                data-codigo="{{ $producto->bar_code }}"  {{-- CORREGIDO --}}
+                                data-codigo="{{ $producto->bar_code }}"
                                 data-nombre="{{ $producto->product->name }} ({{ $producto->presentation->name }})"
-                                data-precio="{{ $producto->sale_price }}" {{-- CORREGIDO --}}
+                                data-precio="{{ $producto->sale_price }}"
                                 data-stock="{{ $producto->batches_sum_stock }}">
                                 {{ $producto->product->name }} ({{ $producto->presentation->name }})
                             </option>
@@ -88,7 +88,6 @@
 
                             <div class="form-group mt-3">
                                 <label for="cantidadRecibida">Cantidad recibida</label>
-                                {{-- Este input es para el PAGO (Payment) --}}
                                 <input type="number" class="form-control" name="amountPayment" id="cantidadRecibida" placeholder="Monto entregado" value="0" step="0.01">
                             </div>
 
@@ -109,7 +108,6 @@
 @stop
 
 @section('css')
-{{-- Tu CSS (sin cambios) --}}
 <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.css">
     <style>
         .content-wrapper{
@@ -126,8 +124,6 @@
 @stop
 
 @section('js')
-{{-- Tu JS (el que ya tienes con la API de DataTables) va aquí. Pega el que te di en el paso anterior. --}}
-{{-- (No lo incluyo de nuevo aquí para no hacer la respuesta tan larga, pero es el mismo que empieza con 'var ventaTable;') --}}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://code.jquery.com/jquery-3.7.1.js"> </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"> </script>
@@ -139,8 +135,6 @@
     var ventaTable; 
 
     $(document).ready(function() {
-        
-        // --- 1. INICIALIZACIÓN DE DATATABLES ---
         ventaTable = $('#ventaCrear').DataTable({
             language: {
                 url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
@@ -148,75 +142,184 @@
             paging: false,
             searching: false,
             info: false,
-            ordering: true 
+            ordering: true
         });
 
-        // --- 2. LÓGICA DE AGREGAR PRODUCTO (USANDO API) ---
+        // Botón para agregar un producto a la lista
         $('#btnAgregar').click(function() {
             let productoSelect = $('#productoSelect');
             let productoId = productoSelect.val();
             let nombre = productoSelect.find('option:selected').data('nombre');
             let precio = parseFloat($('#precio').val());
-            let cantidad = parseInt($('#cantidad').val());
+            let cantidadAAgregar = parseInt($('#cantidad').val()); // Cantidad del input
             let stock = parseInt($('#stock').val());
 
             // Validaciones
             if (!productoId) {
                 Swal.fire('Error', 'Selecciona un producto.', 'warning'); return;
             }
-            if (isNaN(precio) || precio <= 0) {
-                Swal.fire('Error', 'El producto seleccionado no tiene un precio válido.', 'warning'); return;
-            }
-            if (isNaN(cantidad) || cantidad <= 0) {
+            if (isNaN(cantidadAAgregar) || cantidadAAgregar <= 0) {
                 Swal.fire('Error', 'Ingresa una cantidad válida.', 'warning'); return;
             }
-            if (cantidad > stock) {
+            if (cantidadAAgregar > stock) {
                 Swal.fire('Stock insuficiente', `Solo quedan ${stock} unidades.`, 'warning'); return;
             }
+            
+            // Se busca si el producto ya existe en la tabla
+            let productoExistente = false;
+            let filaExistente = null;
 
-            let subtotal = precio * cantidad;
+            ventaTable.rows().every(function() {
+                let row = this;
+                let rowData = row.data();
+                
+                // Se extrae el ID del producto de la primera celda
+                let idEnFila = parseInt($(rowData[0]).data('id'));
 
-            let productNameHTML = `<span data-id="${productoId}">${nombre}</span>`;
-            let priceHTML = `$${precio.toFixed(2)}`;
-            let subtotalHTML = `$${subtotal.toFixed(2)}`;
-            let deleteButtonHTML = `<button type="button" class="btn btn-danger btn-sm btn-eliminar-fila">
-                                        <i class="fas fa-trash"></i>
-                                    </button>`;
+                if (idEnFila == productoId) {
+                    productoExistente = true;
+                    filaExistente = row;
+                    return;
+                }
+            });
 
-            ventaTable.row.add([
-                productNameHTML,
-                priceHTML,
-                cantidad,
-                subtotalHTML,
-                deleteButtonHTML
-            ]).draw(); 
+            if (productoExistente) {
+                let datosFila = filaExistente.data();
+                let cantidadActual = parseInt(datosFila[2]);
+                let maxStock = parseInt($(datosFila[0]).data('stock'));
 
+                let nuevaCantidad = cantidadActual + cantidadAAgregar;
+
+                // Se vuelve a validar el stock con la cantidad total
+                if (nuevaCantidad > maxStock) {
+                    Swal.fire('Stock insuficiente', `Solo quedan ${maxStock} unidades. Ya tienes ${cantidadActual} en el carrito.`, 'warning');
+                    return;
+                }
+
+                let precioUnitario = parseFloat(datosFila[1].replace('$', ''));
+                let nuevoSubtotal = precioUnitario * nuevaCantidad;
+
+                datosFila[2] = nuevaCantidad;
+                datosFila[3] = `$${nuevoSubtotal.toFixed(2)}`;
+
+                // Se actualiza la fila en la tabla
+                filaExistente.data(datosFila).draw();
+                
+            } else {
+                let subtotal = precio * cantidadAAgregar;
+                let productNameHTML = `<span data-id="${productoId}" data-stock="${stock}">${nombre}</span>`;
+                let priceHTML = `$${precio.toFixed(2)}`;
+                let subtotalHTML = `$${subtotal.toFixed(2)}`;
+                let optionsHTML = `
+                    <button type="button" class="btn btn-warning btn-sm btn-decrementar" style="margin-right: 5px;">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <button type="button" class="btn btn-success btn-sm btn-incrementar" style="margin-right: 5px;">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <button type="button" class="btn btn-danger btn-sm btn-eliminar-fila">
+                        <i class="fas fa-trash"></i>
+                    </button>`;
+
+                ventaTable.row.add([
+                    productNameHTML,
+                    priceHTML,
+                    cantidadAAgregar,
+                    subtotalHTML,
+                    optionsHTML
+                ]).draw(); 
+            }
             actualizarTotal();
             limpiarCampos();
         });
 
-        // --- 3. LÓGICA DE ELIMINAR FILA (USANDO API) ---
+
+        // Botón para eliminar un producto de la lista
         $('#detalleVenta').on('click', '.btn-eliminar-fila', function() {
             ventaTable.row($(this).closest('tr')).remove().draw();
             actualizarTotal();
         });
 
-        // --- 4. LÓGICA DE ACTUALIZAR TOTALES (USANDO API) ---
-        window.actualizarTotal = function() {
-            let total = 0;
+        // Listener para reducir la cantidad de un producto en la lista
+        $('#detalleVenta').on('click', '.btn-decrementar', function() {
+            let tr = $(this).closest('tr');
+            let row = ventaTable.row(tr);
+            let rowData = row.data();
             
+            let cantidad = parseInt(rowData[2]);
+            
+            // No permite bajar de 1
+            if (cantidad <= 1) {
+                return;
+            }
+            
+            cantidad--;
+            
+            let precio = parseFloat(rowData[1].replace('$', ''));
+            let subtotal = precio * cantidad;
+            
+            // Actualizar los datos de la fila en DataTables
+            rowData[2] = cantidad;
+            rowData[3] = `$${subtotal.toFixed(2)}`;
+
+            row.data(rowData).draw();
+            actualizarTotal();
+        });
+
+        // Listener para aumentar la cantidad de un producto en la lista
+        $('#detalleVenta').on('click', '.btn-incrementar', function() {
+            let tr = $(this).closest('tr');
+            let row = ventaTable.row(tr);
+            let rowData = row.data();
+            
+            // Se obtiene el stock máximo del producto guardado en <span>
+            let maxStock = parseInt($(rowData[0]).data('stock'));
+            let cantidad = parseInt(rowData[2]);
+
+            if (cantidad >= maxStock) {
+                Swal.fire('Stock insuficiente', `Solo quedan ${maxStock} unidades.`, 'warning');
+                return;
+            }
+            
+            cantidad++;
+            
+            let precio = parseFloat(rowData[1].replace('$', ''));
+            let subtotal = precio * cantidad;
+
+            rowData[2] = cantidad;
+            rowData[3] = `$${subtotal.toFixed(2)}`;
+
+            row.data(rowData).draw();
+            actualizarTotal();
+        });
+
+
+        // Actualización del precio total de la venta
+        window.actualizarTotal = function() {
+            let totalExacto = 0;
+            
+            // Cácluco del total exacto
             ventaTable.rows().data().each(function(rowData) {
                 let subtotal = parseFloat(rowData[3].replace('$', '')) || 0;
-                total += subtotal;
+                totalExacto += subtotal;
             });
 
-            $('#totalPagar').text(`$${total.toFixed(2)}`);
+            // Se redondea el total exacto a 2 decimales
+            let tipoDeRecibo = $('#receiptType').val();
+            let totalAPagar = totalExacto; // Por defecto, se vuelve el total exacto
+
+            if (tipoDeRecibo === 'Efectivo') {
+                // Se redondea al múltiplo de 50 centavos más cercano
+                totalAPagar = Math.round(totalExacto * 2) / 2;
+            }
+            $('#totalPagar').text(`$${totalAPagar.toFixed(2)}`);
 
             let recibido = parseFloat($('#cantidadRecibida').val()) || 0;
-            let cambio = recibido - total;
-            $('#cambio').text(`$${cambio.toFixed(2)}`);
+            let cambio = recibido - totalAPagar; 
+            $('#cambio').text(`$${Math.max(0, cambio).toFixed(2)}`); // Evita cambio negativo
         }
 
+        // Listeners
         $('#cantidadRecibida').on('input', window.actualizarTotal);
 
         function limpiarCampos() {
@@ -237,6 +340,9 @@
             $('#codigo').val(codigo || '');
             $('#stock').val(stock || '');
         });
+
+        // Se vuelve a calcular el total si cambia el tipo de recibo
+        $('#receiptType').on('change', window.actualizarTotal);
     });
 </script>
 
@@ -246,8 +352,8 @@
         const btnGuardar = document.getElementById('btnGuardar');
         const totalPagarEl = document.getElementById('totalPagar');
         const cantidadRecibidaEl = document.getElementById('cantidadRecibida');
-        const amountTotalInputEl = document.getElementById('amountTotalInput'); // ID Correcto
-        const amountExchangeInputEl = document.getElementById('amountExchangeInput'); // ID Correcto
+        const amountTotalInputEl = document.getElementById('amountTotalInput');
+        const amountExchangeInputEl = document.getElementById('amountExchangeInput');
 
         if (!window.ventaTable) {
             setTimeout(initializeSaveButton, 100);
@@ -291,45 +397,44 @@
             });
         }
 
-
         function prepareAndSubmit() {
-            document.querySelectorAll('input[name^="productos["]').forEach(el => el.remove());
-            let total = 0;
+            // Limpia inputs antiguos
+            document.querySelectorAll('input[name^="products["]').forEach(el => el.remove());
+            
+            let totalExacto = 0;
 
             if (window.ventaTable) {
                 window.ventaTable.rows().data().each(function(rowData, index) {
-                    
-                    // [0] es <span data-id="123">Nombre</span>
-                    // [1] es $10.00 (Precio)
-                    // [2] es 2 (Cantidad)
-                    // [3] es $20.00 (Subtotal)
-                    
                     let productId = $(rowData[0]).data('id');
                     let price = parseFloat(rowData[1].replace('$', '')) || 0;
                     let quantity = parseInt(rowData[2]);
-                    let subtotal = parseFloat(rowData[3].replace('$', '')) || 0;
-
-                    total += subtotal;
-
-                    // 1. El ID (El backend espera 'products.*.id')
                     form.insertAdjacentHTML('beforeend', `<input type="hidden" name="products[${index}][id]" value="${productId}">`);
-                    
-                    // La Cantidad (El backend espera 'products.*.quantity')
                     form.insertAdjacentHTML('beforeend', `<input type="hidden" name="products[${index}][quantity]" value="${quantity}">`);
-                    
-                    // El Precio (El backend espera 'products.*.price')
                     form.insertAdjacentHTML('beforeend', `<input type="hidden" name="products[${index}][price]" value="${price}">`);
 
-                    // NOTA: No se envía el subtotal porque VentasController lo calcula por sí mismo
+                    // Calcula el subtotal para el total exacto
+                    let subtotal = parseFloat(rowData[3].replace('$', '')) || 0;
+                    totalExacto += subtotal;
                 });
             }
 
+            // Se lleva a cabo la lógica de redondeo
+            let tipoDeRecibo = document.getElementById('receiptType').value;
+            let totalAPagar = totalExacto;
+
+            if (tipoDeRecibo === 'Efectivo') {
+                totalAPagar = Math.round(totalExacto * 2) / 2;
+            }
+
             let cantidadRecibida = parseFloat(cantidadRecibidaEl.value) || 0;
-            let cambio = cantidadRecibida - total;
+            let cambio = cantidadRecibida - totalAPagar;
             
-            if (amountTotalInputEl) amountTotalInputEl.value = total.toFixed(2);
+            // Asigna los valores redondeados a los inputs que se envían al backend
+            if (amountTotalInputEl) amountTotalInputEl.value = totalAPagar.toFixed(2);
             if (amountExchangeInputEl) amountExchangeInputEl.value = cambio.toFixed(2);
         }
+
+
     });
 </script>
 
