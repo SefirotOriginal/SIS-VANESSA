@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Usuario;
-
+use App\Models\VentaDetalle;
 class Venta extends Model
 {
     use HasFactory;
@@ -26,5 +26,10 @@ class Venta extends Model
     public function usuario()
     {
         return $this->belongsTo(Usuario::class, 'user_id');
+    }
+
+    public function detalles()
+    {
+        return $this->hasMany(VentaDetalle::class);
     }
 }

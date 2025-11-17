@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Producto;
+use App\Models\ProductPresentation;
+// use App\Models\Producto; 
 
 class HomeController extends Controller
 {
@@ -24,7 +25,13 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $productos = Producto::all();
+        $productos = ProductPresentation::with('product')
+                                ->whereHas('product')
+                                ->withSum('batches', 'stock') 
+                                ->whereHas('batches', function ($query) {
+                                    $query->where('stock', '>', 0);
+                                })
+                                ->get();
         return view('home', compact('productos'));
     }
 }

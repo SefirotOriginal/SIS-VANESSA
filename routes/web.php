@@ -22,8 +22,11 @@ Route::get('/', function () {
 Route::get('/buscar-producto/{codigo}', [VentasController::class, 'ventas.buscarProducto']);
 Route::post('ventas/consultas', [VentasController::class, 'crear'])->name('ventas.crear');
 Route::get('ventas/consultas', [VentasController::class, 'consultas'])->name('ventas.consulta');
-Route::get('ventas/detalles', [VentasController::class, 'detalles'])->name('ventas.detalles');
-Route::get('ventas/devoluciones', [VentasController::class, 'devoluciones'])->name('ventas.devoluciones');
+Route::get('ventas/detalles/{id}', [VentasController::class, 'detalles'])->name('ventas.detalles');
+// Muestra la página para confirmar la devolución
+Route::get('ventas/devoluciones/{id}', [VentasController::class, 'devoluciones'])->name('ventas.devoluciones');
+// Procesa la devolución (la acción de devolver)
+Route::post('ventas/devoluciones/{id}', [VentasController::class, 'procesarDevolucion'])->name('ventas.devolucion.procesar');
 
 
 //Creación de products

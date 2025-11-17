@@ -9,9 +9,7 @@
 @section('content')
 <div class="card shadow">
 <div class="card-body">
-    {{-- Sección dividida en 2 columnas horizontales --}}
     <div class="row mt-4">
-        <!-- Tabla de detalles de venta -->
          <div class="table-responsive">
             <table id="ventaConsulta" class="table table-striped text-center" style="width:100%">
                 <thead class="custom-header">
