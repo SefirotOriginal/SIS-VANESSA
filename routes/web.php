@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 use App\Http\Controllers\VentasController;
+use App\Http\Controllers\PresentationController;
+use App\Http\Controllers\SaleController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\UsuariosController;
@@ -15,8 +17,8 @@ use App\Http\Controllers\BatchController;
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+    return redirect()->route('sales.create');
+});
 
 //Sección de Ventas
 Route::get('/buscar-producto/{codigo}', [VentasController::class, 'ventas.buscarProducto']);
@@ -29,6 +31,13 @@ Route::get('ventas/devoluciones/{id}', [VentasController::class, 'devoluciones']
 Route::post('ventas/devoluciones/{id}', [VentasController::class, 'procesarDevolucion'])->name('ventas.devolucion.procesar');
 // Permite generar un archivo .PDF como recibo de venta
 Route::get('/ventas/recibo/{id}', [VentasController::class, 'imprimirRecibo'])->name('ventas.recibo');
+
+//Sección de ventas
+Route::resource('sales', SaleController::class);
+Route::get('sales/receipt/{id}', [SaleController::class, 'print_receipt'])->name('sales.receipt');
+Route::get('sales/return/{id}', [SaleController::class, 'return_Sale'])->name('sales.return');
+Route::post('sales/return/{id}', [SaleController::class, 'process_return'])->name('sales.return.process');
+// Route::get('sales/create', [SaleController::class, 'create'])->name('sales.create');
 
 
 //Creación de products
@@ -133,7 +142,7 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
 Auth::routes();
 

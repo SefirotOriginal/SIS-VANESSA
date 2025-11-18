@@ -1,20 +1,25 @@
 <?php
+
 namespace App\Models;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-class VentaDetalle extends Model
+class DetailSale extends Model
 {
-    use HasFactory;
-    protected $table = 'venta_detalles';
-    protected $fillable = [
-        'venta_id',
-        'product_presentation_id',
-        'quantity',
-        'price',
-        'subtotal',
-    ];
+    use SoftDeletes;
 
+    protected $table = 'sales_details';
+    protected $fillable = [
+        'id',
+        'sale_id',
+        'salePrice',
+        'product_id',
+        'product_presentation_id',
+        'quantityProduct',
+        'subTotal',
+
+    ];
     public function productPresentation()
     {
         /*

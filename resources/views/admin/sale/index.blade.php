@@ -23,15 +23,15 @@
                     </tr>
                 </thead>
                 <tbody id="detalleVenta">
-                    @foreach ($ventas as $venta)
+                    @foreach ($sales as $sale)
                         <tr>
-                            <td>{{ $venta->usuario->name ?? 'Desconocido' }}</td>
-                            <td>{{ $venta->referenceNumber }}</td>
-                            <td>{{ $venta->receiptType }}</td>
-                            <td>{{ $venta->created_at->format('d-m-Y') }}</td>
-                            <td>${{ number_format($venta->amountTotal, 2) }}</td>
+                            <td>{{ $sale->user->name ?? 'Desconocido' }}</td>
+                            <td>{{ $sale->referenceNumber }}</td>
+                            <td>{{ $sale->receiptType }}</td>
+                            <td>{{ $sale->created_at->format('d-m-Y') }}</td>
+                            <td>${{ number_format($sale->amountTotal, 2) }}</td>
                             <td>
-                                <a href="{{ route('ventas.detalles', $venta->id) }}" class="btn btn-info btn-sm">
+                                <a href="{{ route('sales.show', $sale->id) }}" class="btn btn-info btn-sm">
                                     <i class="fas fa-eye"></i>
                                 </a>
                             </td>

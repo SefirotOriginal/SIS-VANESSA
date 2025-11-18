@@ -12,13 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         //Tabla de detalles de ventas
-        Schema::create("detailsSales", function (Blueprint $table) {
+        Schema::create("sales_details", function (Blueprint $table) {
             $table->id();
             $table->decimal("salePrice");
-            $table->integer("quantityProduct"); 
+            $table->integer("quantityProduct");
             $table->decimal("subTotal");
-            // llave foranea para registrar el id del usuario 
+            // llave foranea para registrar el id del usuario
             $table->foreignId('product_id')->nullable()->constrained();
+            $table->foreignId('product_presentation_id')->nullable()->constrained();
             $table->foreignId('sale_id')->nullable()->constrained();
             $table->timestamps();
             $table->softDeletes();

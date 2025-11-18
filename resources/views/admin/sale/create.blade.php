@@ -17,7 +17,7 @@
                     <select class="form-control" id="productoSelect">
                         <option value="">-- Seleccionar producto --</option>
 
-                        @foreach ($productos as $producto)
+                        @foreach ($products as $producto)
                             <option
                                 value="{{ $producto->id }}"
                                 data-codigo="{{ $producto->bar_code }}"
@@ -31,7 +31,7 @@
                 </div>
                 <div class="col-md-2">
                     <label for="codigo" class="form-label">Código</label>
-                    <input type="text" class="form-control" id="codigo" placeholder="Código" readonly>
+                    <input type="text" class="form-control" id="codigo" placeholder="Código de barras" autocomplete="off">
                 </div>
                 <div class="col-md-2">
                     <label for="precio" class="form-label">Precio</label>
@@ -339,6 +339,35 @@
             $('#precio').val(precio || '');
             $('#codigo').val(codigo || '');
             $('#stock').val(stock || '');
+        });
+
+        // Buscar producto por código de barras
+        $('#codigo').on('input', function() {
+            let codigoIngresado = $(this).val().trim();
+            
+            if (codigoIngresado === '') {
+                // Si está vacío, limpiar los campos
+                limpiarCampos();
+                return;
+            }
+
+            // Buscar el producto por código de barras
+            let productoEncontrado = false;
+            $('#productoSelect option').each(function() {
+                let codigo = $(this).data('codigo');
+                if (codigo && codigo.toString() === codigoIngresado) {
+                    $('#productoSelect').val($(this).val()).trigger('change');
+                    productoEncontrado = true;
+                    return false; // Rompe el loop
+                }
+            });
+
+            if (!productoEncontrado && codigoIngresado !== '') {
+                // Si no encuentra el código, mostrar un mensaje
+                // Pero no limpiar el campo para que el usuario pueda seguir escribiendo
+                $('#precio').val('');
+                $('#stock').val('');
+            }
         });
 
         // Se vuelve a calcular el total si cambia el tipo de recibo

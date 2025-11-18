@@ -315,12 +315,12 @@ return [
                 [
                     'text' => 'Crear ventas',
                     'icon' => 'fas fa-fw fa-plus',
-                    'url' => 'home',
+                    'route' => 'sales.create',
                 ],
                 [
                     'text' => 'Consultar ventas',
                     'icon' => 'far fa-fw fa-bookmark',
-                    'route' => 'ventas.consulta',
+                    'route' => 'sales.index',
                 ],
             ],
         ],

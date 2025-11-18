@@ -12,10 +12,10 @@ class UsuariosController extends Controller
     public function create()
     {
         $roles = Role::all();
-        return view('users.create' , compact('roles'));
+        return view('users.create', compact('roles'));
     }
 
-public function store(Request $request)
+    public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
@@ -23,7 +23,7 @@ public function store(Request $request)
             'phoneNumber' => 'nullable|string|regex:/^\+?[0-9]{7,15}$/|unique:users,phoneNumber',
             'password' => 'required|string|min:8',
             'role' => 'required|string|exists:roles,name',
-            'imagenPerfil' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048' 
+            'imagenPerfil' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
         $path = null;
@@ -109,7 +109,7 @@ public function store(Request $request)
 
     public function destroy($id)
     {
-        $user = Usuario::findOrFail($id); 
+        $user = Usuario::findOrFail($id);
 
         // Lógica para prevenir auto-eliminación
         if ($user->id == auth()->id()) {
