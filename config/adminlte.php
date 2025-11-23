@@ -382,7 +382,34 @@ return [
         [
             'text' => 'Reportes',
             'icon' => 'fas fa-fw fa-chart-pie',
-            'route' => 'reportes.consulta',
+            'submenu' => [
+                [
+                    'text' => 'Ventas',
+                    'icon' => 'fas fa-fw fa-chart-line',
+                    'route' => 'reports.sales',
+                ],
+                [
+                    'text' => 'Productos más vendidos',
+                    'icon' => 'fas fa-fw fa-chart-bar',
+                    // 'route' => 'reports.topselling',
+                ],
+                [
+                    'text' => 'Productos por vencer',
+                    'icon' => 'fas fa-fw fa-bell',
+                    // 'route' => 'reports.expiring',
+                ],
+                [
+                    'text' => 'Productos agotados',
+                    'icon' => 'fas fa-fw fa-box-open',
+                    // 'route' => 'reports.outofstock',
+                ],
+                [
+                    'text' => 'Consulta de reportes',
+                    'icon' => 'fas fa-fw fa-search',
+                    // 'route' => 'reports.index',
+                ],
+                  // 'route' => 'reportes.consulta',
+            ],
         ],
 
         // Sección de CORTE DE CAJA

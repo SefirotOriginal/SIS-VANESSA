@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
-use App\Http\Controllers\VentasController;
+// use App\Http\Controllers\VentasController;
 use App\Http\Controllers\PresentationController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\ProductController;
@@ -21,16 +21,16 @@ Route::get('/', function () {
 });
 
 //Sección de Ventas
-Route::get('/buscar-producto/{codigo}', [VentasController::class, 'ventas.buscarProducto']);
-Route::post('ventas/consultas', [VentasController::class, 'crear'])->name('ventas.crear');
-Route::get('ventas/consultas', [VentasController::class, 'consultas'])->name('ventas.consulta');
-Route::get('ventas/detalles/{id}', [VentasController::class, 'detalles'])->name('ventas.detalles');
-// Muestra la página para confirmar la devolución
-Route::get('ventas/devoluciones/{id}', [VentasController::class, 'devoluciones'])->name('ventas.devoluciones');
-// Procesa la devolución (la acción de devolver)
-Route::post('ventas/devoluciones/{id}', [VentasController::class, 'procesarDevolucion'])->name('ventas.devolucion.procesar');
-// Permite generar un archivo .PDF como recibo de venta
-Route::get('/ventas/recibo/{id}', [VentasController::class, 'imprimirRecibo'])->name('ventas.recibo');
+// Route::get('/buscar-producto/{codigo}', [VentasController::class, 'ventas.buscarProducto']);
+// Route::post('ventas/consultas', [VentasController::class, 'crear'])->name('ventas.crear');
+// Route::get('ventas/consultas', [VentasController::class, 'consultas'])->name('ventas.consulta');
+// Route::get('ventas/detalles/{id}', [VentasController::class, 'detalles'])->name('ventas.detalles');
+// // Muestra la página para confirmar la devolución
+// Route::get('ventas/devoluciones/{id}', [VentasController::class, 'devoluciones'])->name('ventas.devoluciones');
+// // Procesa la devolución (la acción de devolver)
+// Route::post('ventas/devoluciones/{id}', [VentasController::class, 'procesarDevolucion'])->name('ventas.devolucion.procesar');
+// // Permite generar un archivo .PDF como recibo de venta
+// Route::get('/ventas/recibo/{id}', [VentasController::class, 'imprimirRecibo'])->name('ventas.recibo');
 
 //Sección de ventas
 Route::resource('sales', SaleController::class);
@@ -124,6 +124,9 @@ Route::get('reportes/creacion', [ReportesController::class, 'creacion'])->name('
 Route::get('reportes/consultas', [ReportesController::class, 'consultas'])->name('reportes.consulta');
 Route::get('reportes/detalles', [ReportesController::class, 'detalles'])->name('reportes.detalles');
 
+Route::get('reportes/ventas', [App\Http\Controllers\ReportsController::class, 'Sales'])->name('reports.sales');
+// Ruta para generar el reporte predictivo con Gemini
+Route::post('reports/predictive-sales', [App\Http\Controllers\ReportsController::class, 'generatePredictiveReportWithGemini'])->name('reports.predictive.sales');
 
 //Sección de Cortes de caja
 Route::get('cortes/creacion', [CortesController::class, 'creacion'])->name('cortes.creacion');
