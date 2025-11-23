@@ -18,12 +18,11 @@ return new class extends Migration
             $table->foreignId('purchase_id')->constrained()->onDelete('cascade');
             $table->foreignId('product_presentation_id')->constrained()->onDelete('restrict');
             $table->foreignId('batch_id')->nullable()->constrained()->onDelete('set null');
-
+            $table->foreignId('product_id')->constrained()->onDelete('restrict');
             $table->decimal("purchase_price", 10, 2);
             $table->decimal("sale_price", 10, 2);
             $table->integer("stock"); // Cantidad ingresada en esta compra
             $table->decimal("amount_total", 10, 2);
-
             $table->timestamps();
             $table->softDeletes();
         });
