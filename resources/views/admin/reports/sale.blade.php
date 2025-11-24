@@ -56,6 +56,7 @@
                     <h2 style="margin: 0; font-size: 24px; font-weight: bold;">Farmacia Vanessa</h2>
                     <p id="report-dates" style="margin: 0; font-size: 14px; color: #555;">
                         <!-- JS insertará las fechas -->
+
                     </p>
                 </div>
 
@@ -149,7 +150,8 @@
 
 @section('js')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+{{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script> --}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <script>
@@ -253,15 +255,29 @@ function displayReport(data, startDate, endDate) {
     });
 }
 
-document.getElementById('downloadPdf').addEventListener('click', function() {
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF('landscape');
+// document.getElementById('downloadPdf').addEventListener('click', function() {
+//     const { jsPDF } = window.jspdf;
+//     const pdf = new jsPDF('landscape');
 
-    html2canvas(document.getElementById('reportContent')).then(canvas => {
-        const imgData = canvas.toDataURL('image/png');
-        pdf.addImage(imgData, 'PNG', 5, 0, 285, 200);
-        pdf.save('reporte_ventas.pdf');
-    });
+//     html2canvas(document.getElementById('reportContent')).then(canvas => {
+//         const imgData = canvas.toDataURL('image/png');
+//         pdf.addImage(imgData, 'PNG', 5, 0, 285, 200);
+//         pdf.save('reporte_ventas.pdf');
+//     });
+// });
+document.getElementById('downloadPdf').addEventListener('click', function() {
+
+    const element = document.getElementById('reportContent');
+
+    const options = {
+        margin:       0.5,
+        filename:     'reporte_ventas.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
+    };
+
+    html2pdf().set(options).from(element).save();
 });
 
 </script>

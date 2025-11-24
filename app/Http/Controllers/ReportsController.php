@@ -48,6 +48,7 @@ class ReportsController extends Controller
      */
     public function generatePredictiveReportWithGemini(Request $request, \App\Services\GeminiService $gemini)
     {
+        $salesList = Sale::with('details')->get();
         try {
             $request->validate([
                 'start_date' => 'required|date',
@@ -85,7 +86,17 @@ class ReportsController extends Controller
             }
 
             // Crear prompt para Gemini
-            $prompt = $this->createPredictionPrompt($historicalData, $startDate, $endDate);
+            $prompt = $this->createPredictionPrompt(
+                $historicalData,
+                $startDate,
+                $endDate,
+                json_encode($salesData),            // ventas reales
+                json_encode($predictions ?? []),    // predicciones
+                json_encode($salesList),            // detalle de ventas
+                array_sum($salesData),              // total ventas
+                count($salesList),                  // num operaciones
+                count($salesList) > 0 ? array_sum($salesData) / count($salesList) : 0 // ticket
+            );
 
             // Llamar a Gemini API
             $geminiResponse = $gemini->generarContenido($prompt);
@@ -125,7 +136,8 @@ class ReportsController extends Controller
                 'predictions' => [
                     'labels' => $predictions['labels'],
                     'data' => $predictions['data']
-                ]
+                ],
+                'report_text' => $geminiResponse
             ]);
         } catch (\Exception $e) {
             Log::error('Error generando reporte predictivo: ' . $e->getMessage());
@@ -136,85 +148,101 @@ class ReportsController extends Controller
     /**
      * Crea el prompt para Gemini basado en datos históricos
      */
-    private function createPredictionPrompt($historicalData, $startDate, $endDate)
-    {
+    private function createPredictionPrompt(
+        $historicalData,
+        $startDate,
+        $endDate,
+        $sales_json,
+        $predictions_json,
+        $sales_list_json,
+        $total_ventas,
+        $num_operaciones,
+        $ticket_promedio
+    ) {
+
         $dataString = "";
         foreach ($historicalData as $data) {
             $dataString .= "Fecha: {$data['date']}, Ventas Totales: {$data['total_sales']}, Número de Ventas: {$data['num_sales']}\n";
         }
 
         return "Genera un reporte profesional de ventas para una farmacia, usando la información proporcionada.
+                === CONTEXTO DEL NEGOCIO ===
+                La empresa es una farmacia. El reporte será utilizado por administradores para evaluar desempeño, comportamiento de ventas, tendencias, productos de mayor movimiento y posibles riesgos de inventario.
 
-=== CONTEXTO DEL NEGOCIO ===
-La empresa es una farmacia. El reporte será utilizado por administradores para evaluar desempeño, comportamiento de ventas, tendencias, productos de mayor movimiento y posibles riesgos de inventario.
+                === DATOS QUE TE PROPORCIONO ===
+                Periodo analizado: $startDate a $endDate
 
-=== DATOS QUE TE PROPORCIONO ===
-Periodo analizado: {{start_date}} a {{end_date}}
+                Ventas reales por día (JSON):
+                $sales_json
 
-Ventas reales por día (JSON):
-{{sales_json}}
+                Predicciones generadas por el modelo (JSON):
+                $predictions_json
 
-Predicciones generadas por el modelo (JSON):
-{{predictions_json}}
+                Detalle de ventas realizadas (productos, cantidades, precios y fechas):
+                $sales_list_json
 
-Detalle de ventas realizadas (productos, cantidades, precios y fechas):
-{{sales_list_json}}
+                KPIs:
+                - Total de ventas: $total_ventas
+                - Número de operaciones: $num_operaciones
+                - Ticket promedio: $ticket_promedio
 
-KPIs:
-- Total de ventas: {{total_ventas}}
-- Número de operaciones: {{num_operaciones}}
-- Ticket promedio: {{ticket_promedio}}
+                === OBJETIVO DEL REPORTE ===
+                Debes generar un análisis completo que incluya OBLIGATORIAMENTE todas las siguientes secciones, sin omitir ninguna:
 
-=== OBJETIVO DEL REPORTE ===
-Debes generar un análisis completo que incluya OBLIGATORIAMENTE todas las siguientes secciones, sin omitir ninguna:
+                1. **TÍTULO**
+                “REPORTE DE COMPORTAMIENTO DE VENTAS – FARMACIA VANESSA”
 
-1. **TÍTULO**
-   “REPORTE DE COMPORTAMIENTO DE VENTAS – FARMACIA”
+                2. **RESUMEN EJECUTIVO**
+                Breve resumen general del periodo analizado.
 
-2. **RESUMEN EJECUTIVO**
-   Breve resumen general del periodo analizado.
+                3. **RESUMEN DEL COMPORTAMIENTO DE VENTAS (OBLIGATORIO)**
+                - Explicar cómo se comportaron las ventas en el periodo.
+                - Identificar aumentos, disminuciones, estabilidad y picos.
+                - Señalar días atípicos y patrones visibles.
 
-3. **RESUMEN DEL COMPORTAMIENTO DE VENTAS (OBLIGATORIO)**
-   - Explicar cómo se comportaron las ventas en el periodo.
-   - Identificar aumentos, disminuciones, estabilidad y picos.
-   - Señalar días atípicos y patrones visibles.
+                4. **ANÁLISIS DETALLADO DEL PERIODO**
+                - Días con mayor venta.
+                - Días con menor venta.
+                - Posibles causas (solo con base en los datos).
 
-4. **ANÁLISIS DETALLADO DEL PERIODO**
-   - Días con mayor venta.
-   - Días con menor venta.
-   - Posibles causas (solo con base en los datos).
+                5. **TENDENCIAS**
+                - Tendencias crecientes o decrecientes.
+                - Patrones por día de semana.
+                - Indicios de comportamiento estacional.
 
-5. **TENDENCIAS**
-   - Tendencias crecientes o decrecientes.
-   - Patrones por día de semana.
-   - Indicios de comportamiento estacional.
+                6. **ANÁLISIS DE PREDICCIONES**
+                - Comparar predicciones con ventas reales.
+                - Indicar si se espera aumento, estabilidad o caída.
+                - Riesgos u oportunidades detectadas.
 
-6. **ANÁLISIS DE PREDICCIONES**
-   - Comparar predicciones con ventas reales.
-   - Indicar si se espera aumento, estabilidad o caída.
-   - Riesgos u oportunidades detectadas.
+                7. **ANÁLISIS DE PRODUCTOS**
+                - Productos más vendidos.
+                - Productos de mayor rotación.
+                - Productos con baja venta.
+                - Productos en riesgo de agotarse (solo si los datos lo indican).
 
-7. **ANÁLISIS DE PRODUCTOS**
-   - Productos más vendidos.
-   - Productos de mayor rotación.
-   - Productos con baja venta.
-   - Productos en riesgo de agotarse (solo si los datos lo indican).
+                8. **CONCLUSIONES Y RECOMENDACIONES (OBLIGATORIO)**
+                Deben incluir:
+                - Recomendaciones de compra.
+                - Productos que requieren reforzar inventario.
+                - Acciones sugeridas basadas en el comportamiento observado.
+                - Riesgos potenciales detectados en ventas o predicciones.
 
-8. **CONCLUSIONES Y RECOMENDACIONES (OBLIGATORIO)**
-   Deben incluir:
-   - Recomendaciones de compra.
-   - Productos que requieren reforzar inventario.
-   - Acciones sugeridas basadas en el comportamiento observado.
-   - Riesgos potenciales detectados en ventas o predicciones.
+                === FORMATO DE RESPUESTA ===
+                - Usa subtítulos claros y visibles para cada sección.
+                - NO uses formato JSON en la salida final.
+                - NO inventes datos ni productos que no aparecen en los datos proporcionados.
+                - La respuesta debe ser texto claro, para incrustarse en un PDF.
 
-=== FORMATO DE RESPUESTA ===
-- Usa subtítulos claros y visibles para cada sección.
-- NO uses formato JSON en la salida final.
-- NO inventes datos ni productos que no aparecen en los datos proporcionados.
-- La respuesta debe ser texto claro, para incrustarse en un PDF.
+                IMPORTANTE:
+                - No utilices sintaxis de plantilla como {{variable}}, {% for %}, ni nada similar.
+                - No utilices filtros como |currency, |sum.
+                - Entrega el texto final listo para ponerse en un PDF.
 
-Genera ahora el reporte completo cumpliendo todas las secciones obligatorias.
-";
+                Redacta de manera ejecutiva y profesional.
+
+                Genera ahora el reporte completo cumpliendo todas las secciones obligatorias.
+                ";
     }
 
     /**
