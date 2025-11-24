@@ -143,21 +143,78 @@ class ReportsController extends Controller
             $dataString .= "Fecha: {$data['date']}, Ventas Totales: {$data['total_sales']}, Número de Ventas: {$data['num_sales']}\n";
         }
 
-        return "Analiza los siguientes datos históricos de ventas y proporciona predicciones para los próximos 30 días:
+        return "Genera un reporte profesional de ventas para una farmacia, usando la información proporcionada.
 
-Datos históricos:
-{$dataString}
+=== CONTEXTO DEL NEGOCIO ===
+La empresa es una farmacia. El reporte será utilizado por administradores para evaluar desempeño, comportamiento de ventas, tendencias, productos de mayor movimiento y posibles riesgos de inventario.
 
-Por favor, analiza las tendencias, patrones estacionales y crecimiento. Proporciona predicciones diarias de ventas totales para los próximos 30 días a partir de {$endDate}.
+=== DATOS QUE TE PROPORCIONO ===
+Periodo analizado: {{start_date}} a {{end_date}}
 
-Responde únicamente con un JSON válido en el siguiente formato:
-{
-  \"predictions\": [
-    {\"date\": \"YYYY-MM-DD\", \"predicted_sales\": 123.45},
-    {\"date\": \"YYYY-MM-DD\", \"predicted_sales\": 234.56},
-    ...
-  ]
-}";
+Ventas reales por día (JSON):
+{{sales_json}}
+
+Predicciones generadas por el modelo (JSON):
+{{predictions_json}}
+
+Detalle de ventas realizadas (productos, cantidades, precios y fechas):
+{{sales_list_json}}
+
+KPIs:
+- Total de ventas: {{total_ventas}}
+- Número de operaciones: {{num_operaciones}}
+- Ticket promedio: {{ticket_promedio}}
+
+=== OBJETIVO DEL REPORTE ===
+Debes generar un análisis completo que incluya OBLIGATORIAMENTE todas las siguientes secciones, sin omitir ninguna:
+
+1. **TÍTULO**
+   “REPORTE DE COMPORTAMIENTO DE VENTAS – FARMACIA”
+
+2. **RESUMEN EJECUTIVO**
+   Breve resumen general del periodo analizado.
+
+3. **RESUMEN DEL COMPORTAMIENTO DE VENTAS (OBLIGATORIO)**
+   - Explicar cómo se comportaron las ventas en el periodo.
+   - Identificar aumentos, disminuciones, estabilidad y picos.
+   - Señalar días atípicos y patrones visibles.
+
+4. **ANÁLISIS DETALLADO DEL PERIODO**
+   - Días con mayor venta.
+   - Días con menor venta.
+   - Posibles causas (solo con base en los datos).
+
+5. **TENDENCIAS**
+   - Tendencias crecientes o decrecientes.
+   - Patrones por día de semana.
+   - Indicios de comportamiento estacional.
+
+6. **ANÁLISIS DE PREDICCIONES**
+   - Comparar predicciones con ventas reales.
+   - Indicar si se espera aumento, estabilidad o caída.
+   - Riesgos u oportunidades detectadas.
+
+7. **ANÁLISIS DE PRODUCTOS**
+   - Productos más vendidos.
+   - Productos de mayor rotación.
+   - Productos con baja venta.
+   - Productos en riesgo de agotarse (solo si los datos lo indican).
+
+8. **CONCLUSIONES Y RECOMENDACIONES (OBLIGATORIO)**
+   Deben incluir:
+   - Recomendaciones de compra.
+   - Productos que requieren reforzar inventario.
+   - Acciones sugeridas basadas en el comportamiento observado.
+   - Riesgos potenciales detectados en ventas o predicciones.
+
+=== FORMATO DE RESPUESTA ===
+- Usa subtítulos claros y visibles para cada sección.
+- NO uses formato JSON en la salida final.
+- NO inventes datos ni productos que no aparecen en los datos proporcionados.
+- La respuesta debe ser texto claro, para incrustarse en un PDF.
+
+Genera ahora el reporte completo cumpliendo todas las secciones obligatorias.
+";
     }
 
     /**

@@ -8,11 +8,11 @@ class GeminiService
 {
     protected $baseUrl = "https://generativelanguage.googleapis.com/v1beta/models";
 
-    public function generarContenido($prompt, $model = "gemini-2.5-pro")
+    public function generarContenido($prompt, $model = "gemini-2.5-flash")
     {
         $url = "{$this->baseUrl}/{$model}:generateContent?key=" . config('services.gemini.key');
 
-        $response = Http::post($url, [
+        $response = Http::timeout(120)->post($url, [
             "contents" => [
                 ["parts" => [["text" => $prompt]]]
             ]

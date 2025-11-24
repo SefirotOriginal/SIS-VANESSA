@@ -7,249 +7,262 @@
 @stop
 
 @section('content')
-    <div class="container">
-        <!-- Formulario para seleccionar fechas -->
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Seleccionar Rango de Fechas</h3>
-            </div>
-            <div class="card-body">
-                <form id="reportForm">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="start_date">Fecha de Inicio:</label>
-                                <input type="date" id="start_date" name="start_date" class="form-control" required>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="end_date">Fecha de Fin:</label>
-                                <input type="date" id="end_date" name="end_date" class="form-control" required>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>&nbsp;</label><br>
-                                <button type="submit" class="btn btn-primary">Generar Reporte</button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
+<div class="container">
 
-        <!-- Contenedor para el reporte -->
-        <div id="reportContainer" style="display: none;">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Reporte Generado</h3>
-                    <div class="card-tools">
-                        <button id="downloadPdf" class="btn btn-success btn-sm">Descargar PDF</button>
+    {{-- FORMULARIO PARA SELECCIONAR FECHAS --}}
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3 class="card-title">Seleccionar Rango de Fechas</h3>
+        </div>
+        <div class="card-body">
+
+            <form id="reportForm">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="start_date">Fecha de Inicio:</label>
+                        <input type="date" id="start_date" name="start_date" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="end_date">Fecha de Fin:</label>
+                        <input type="date" id="end_date" name="end_date" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label>&nbsp;</label><br>
+                        <button type="submit" class="btn btn-primary btn-block">Generar Reporte</button>
                     </div>
                 </div>
-                <div class="card-body">
-                    <!-- Tabla de Ventas -->
-                    <div class="mb-4">
-                        <h4>Datos de Ventas en el Rango Seleccionado</h4>
-                        <div class="table-responsive">
-                            <table id="salesTable" class="table table-striped table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Referencia</th>
-                                        <th>Usuario</th>
-                                        <th>Total</th>
-                                        <th>Fecha</th>
-                                        <th>Detalles</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Datos se llenarán dinámicamente -->
-                                    
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+            </form>
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h4>Ventas Reales</h4>
-                            <canvas id="salesChart"></canvas>
-                        </div>
-                        <div class="col-md-6">
-                            <h4>Predicciones de Ventas</h4>
-                            <canvas id="predictionChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Spinner de carga -->
-        <div id="loading" style="display: none;" class="text-center">
-            <div class="spinner-border" role="status">
-                <span class="sr-only">Generando reporte...</span>
-            </div>
-            <p>Generando reporte y predicciones...</p>
         </div>
     </div>
+
+    {{-- CONTENEDOR DEL REPORTE --}}
+    <div id="reportContainer" style="display: none;">
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Reporte Generado</h3>
+                <button id="downloadPdf" class="btn btn-success btn-sm float-right">
+                    Descargar PDF
+                </button>
+            </div>
+
+            <div class="card-body" id="reportContent">
+
+                {{-- ENCABEZADO --}}
+                <div style="padding: 20px; border-bottom: 2px solid #333; margin-bottom: 20px;">
+                    <h2 style="margin: 0; font-size: 24px; font-weight: bold;">Farmacia Vanessa</h2>
+                    <p id="report-dates" style="margin: 0; font-size: 14px; color: #555;">
+                        <!-- JS insertará las fechas -->
+                    </p>
+                </div>
+
+                {{-- KPIs --}}
+                <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+                    <div style="padding: 10px; background: #eef6ff; border-radius: 8px; width: 200px;">
+                        <strong>Total de ventas:</strong><br>
+                        <span id="kpi_total_ventas">—</span>
+                    </div>
+
+                    <div style="padding: 10px; background: #eafff3; border-radius: 8px; width: 200px;">
+                        <strong>Cantidad de operaciones:</strong><br>
+                        <span id="kpi_num_operaciones">—</span>
+                    </div>
+
+                    <div style="padding: 10px; background: #fff8e6; border-radius: 8px; width: 200px;">
+                        <strong>Ticket Promedio:</strong><br>
+                        <span id="kpi_ticket_promedio">—</span>
+                    </div>
+                </div>
+
+                {{-- REPORTE DE IA --}}
+                <h3>Resumen del Comportamiento de Ventas</h3>
+                <div id="geminiReport"
+                     style="white-space: pre-line; padding: 10px; background: #f9f9f9; border-radius: 8px; border: 1px solid #ccc;">
+                    <!-- Texto generado por IA -->
+                </div>
+
+                {{-- TABLA DE VENTAS --}}
+                <h3 class="mt-4">Detalle de Ventas Registradas</h3>
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered" id="salesTable">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Referencia</th>
+                                <th>Usuario</th>
+                                <th>Total</th>
+                                <th>Fecha</th>
+                                <th>Detalles</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sales_table_body">
+                            <!-- JS insertará datos -->
+                        </tbody>
+                    </table>
+                </div>
+
+                {{-- GRÁFICAS --}}
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <h4>Ventas Reales</h4>
+                        <canvas id="salesChart"></canvas>
+                    </div>
+                    <div class="col-md-6">
+                        <h4>Predicción de Ventas (Gemini)</h4>
+                        <canvas id="predictionChart"></canvas>
+                    </div>
+                </div>
+
+                {{-- CONCLUSIÓN FINAL --}}
+                <div style="margin-top: 40px; padding: 15px; background: #f3f7ff; border-left: 5px solid #0059ff;">
+                    <h3>Conclusiones y Recomendaciones</h3>
+                    <div id="gemini_conclusiones" style="white-space: pre-line; margin-top: 10px;">
+                        <!-- IA completa -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    {{-- SPINNER --}}
+    <div id="loading" class="text-center" style="display: none;">
+        <div class="spinner-border" role="status"></div>
+        <p>Generando reporte...</p>
+    </div>
+
+</div>
 @stop
 
 @section('css')
-    <style>
-        #reportContainer {
-            margin-top: 20px;
-        }
-
-        canvas {
-            max-width: 100%;
-            height: 300px;
-        }
-    </style>
+<style>
+    canvas {
+        max-width: 100%;
+        height: 300px;
+    }
+</style>
 @stop
 
 @section('js')
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-    <script>
-        document.getElementById('reportForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const startDate = document.getElementById('start_date').value;
-            const endDate = document.getElementById('end_date').value;
+<script>
 
-            // Mostrar spinner
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('reportContainer').style.display = 'none';
+document.getElementById('reportForm').addEventListener('submit', function(e) {
+    e.preventDefault();
 
-            // Petición AJAX
-            fetch('{{ route('reports.predictive.sales') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({
-                        start_date: startDate,
-                        end_date: endDate
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('loading').style.display = 'none';
-                    if (data.error) {
-                        alert('Error: ' + data.error);
-                    } else {
-                        displayReport(data);
-                    }
-                })
-                .catch(error => {
-                    document.getElementById('loading').style.display = 'none';
-                    console.error('Error:', error);
-                    alert('Error al generar el reporte');
-                });
-        });
+    const startDate = document.getElementById('start_date').value;
+    const endDate   = document.getElementById('end_date').value;
 
-        function displayReport(data) {
-            document.getElementById('reportContainer').style.display = 'block';
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('reportContainer').style.display = 'none';
 
-            // Llenar tabla de ventas
-            const tbody = document.querySelector('#salesTable tbody');
-            tbody.innerHTML = ''; // Limpiar tabla
-            data.sales.list.forEach(sale => {
-                const row = document.createElement('tr');
-                const detailsHtml = sale.details.map(detail =>
-                    `<div><strong>${detail.product}</strong> - Cant: ${detail.quantity}, Precio: ${detail.price}, Sub: ${detail.subtotal}</div>`
-                ).join('');
-                row.innerHTML = `
-                    <td>${sale.id}</td>
-                    <td>${sale.referenceNumber}</td>
-                    <td>${sale.user}</td>
-                    <td>${sale.amountTotal}</td>
-                    <td>${sale.created_at}</td>
-                    <td>${detailsHtml}</td>
-                `;
-                tbody.appendChild(row);
-            });
+    fetch('{{ route('reports.predictive.sales') }}', {
+        method : 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+        body   : JSON.stringify({ start_date: startDate, end_date: endDate })
+    })
+    .then(resp => resp.json())
+    .then(data => {
+        document.getElementById('loading').style.display = 'none';
 
-            // Gráfico de ventas reales
-            const salesCtx = document.getElementById('salesChart').getContext('2d');
-            new Chart(salesCtx, {
-                type: 'line',
-                data: {
-                    labels: data.sales.labels,
-                    datasets: [{
-                        label: 'Ventas Reales',
-                        data: data.sales.data,
-                        borderColor: 'rgb(75, 192, 192)',
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        tension: 0.1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-
-            // Gráfico de predicciones
-            const predictionCtx = document.getElementById('predictionChart').getContext('2d');
-            new Chart(predictionCtx, {
-                type: 'line',
-                data: {
-                    labels: data.predictions.labels,
-                    datasets: [{
-                        label: 'Predicciones',
-                        data: data.predictions.data,
-                        borderColor: 'rgb(255, 99, 132)',
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        tension: 0.1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
+        if (data.error) {
+            alert(data.error);
+        } else {
+            displayReport(data, startDate, endDate);
         }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Ocurrió un error.");
+    });
+});
 
-        document.getElementById('downloadPdf').addEventListener('click', function() {
-            const {
-                jsPDF
-            } = window.jspdf;
-            const pdf = new jsPDF('landscape');
+function displayReport(data, startDate, endDate) {
+    document.getElementById('reportContainer').style.display = 'block';
 
-            html2canvas(document.getElementById('reportContainer')).then(canvas => {
-                const imgData = canvas.toDataURL('image/png');
-                const imgWidth = 280;
-                const pageHeight = 210;
-                const imgHeight = (canvas.height * imgWidth) / canvas.width;
-                let heightLeft = imgHeight;
+    // Insertar fechas
+    document.getElementById('report-dates').innerHTML =
+        `Período: ${startDate} — ${endDate}`;
 
-                let position = 10;
+    // KPIs
+    const totalVentas = data.sales.data.reduce((a,b) => a + b, 0);
+    const numVentas   = data.sales.list.length;
+    const ticketProm  = (totalVentas / numVentas).toFixed(2);
 
-                pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-                heightLeft -= pageHeight;
+    document.getElementById('kpi_total_ventas').innerText = `$${totalVentas}`;
+    document.getElementById('kpi_num_operaciones').innerText = numVentas;
+    document.getElementById('kpi_ticket_promedio').innerText = `$${ticketProm}`;
 
-                while (heightLeft >= 0) {
-                    position = heightLeft - imgHeight;
-                    pdf.addPage();
-                    pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-                    heightLeft -= pageHeight;
-                }
+    // Texto de IA
+    document.getElementById('geminiReport').innerText = data.report_text || "—";
+    document.getElementById('gemini_conclusiones').innerText = data.report_text || "—";
 
-                pdf.save('reporte_ventas_predicciones.pdf');
-            });
-        });
-    </script>
+    // Tabla
+    let tbody = document.getElementById('sales_table_body');
+    tbody.innerHTML = "";
+
+    data.sales.list.forEach(sale => {
+        let detalles = sale.details.map(d =>
+            `<div><strong>${d.product}</strong> - Cant: ${d.quantity}, Precio: ${d.price}, Sub: ${d.subtotal}</div>`
+        ).join("");
+
+        tbody.innerHTML += `
+            <tr>
+                <td>${sale.id}</td>
+                <td>${sale.referenceNumber}</td>
+                <td>${sale.user}</td>
+                <td>${sale.amountTotal}</td>
+                <td>${sale.created_at}</td>
+                <td>${detalles}</td>
+            </tr>
+        `;
+    });
+
+    // Graficas
+    new Chart(document.getElementById('salesChart'), {
+        type: 'line',
+        data: {
+            labels: data.sales.labels,
+            datasets: [{
+                label: 'Ventas Reales',
+                data: data.sales.data,
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        }
+    });
+
+    new Chart(document.getElementById('predictionChart'), {
+        type: 'line',
+        data: {
+            labels: data.predictions.labels,
+            datasets: [{
+                label: 'Predicciones',
+                data: data.predictions.data,
+                borderColor: 'rgb(255, 99, 132)',
+                tension: 0.1
+            }]
+        }
+    });
+}
+
+document.getElementById('downloadPdf').addEventListener('click', function() {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('landscape');
+
+    html2canvas(document.getElementById('reportContent')).then(canvas => {
+        const imgData = canvas.toDataURL('image/png');
+        pdf.addImage(imgData, 'PNG', 5, 0, 285, 200);
+        pdf.save('reporte_ventas.pdf');
+    });
+});
+
+</script>
 @stop
