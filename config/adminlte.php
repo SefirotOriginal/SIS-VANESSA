@@ -313,7 +313,7 @@ return [
             'icon' => 'fas fa-fw fa-cash-register',
             'submenu' => [
                 [
-                    'text' => 'Crear ventas',
+                    'text' => 'Crear venta',
                     'icon' => 'fas fa-fw fa-plus',
                     'route' => 'sales.create',
                 ],
@@ -359,6 +359,24 @@ return [
             ],
         ],
 
+
+        // Sección de COMPRAS
+        [
+            'text'    => 'Compras',
+            'icon'    => 'fas fa-fw fa-shopping-bag',
+            'submenu' => [
+                [
+                    'text' => 'Registrar compra',
+                    'icon' => 'fas fa-fw fa-cart-plus',
+                    'route'  => 'purchases.create',
+                ],
+                [
+                    'text' => 'Consultar compras',
+                    'icon' => 'fas fa-fw fa-file-invoice-dollar',
+                    'route'  => 'purchases.index',
+                ],
+            ],
+        ],
 
         // Sección de USUARIOS
         [
