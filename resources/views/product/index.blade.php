@@ -42,7 +42,7 @@
                                         <td>{{ $presentation->formula ?? '-' }}</td>
                                         <td>{{ $presentation->product->laboratory->name ?? 'N/A' }}</td>
                                         <td>{{ $presentation->bar_code }}</td>
-                                        <td>${{ number_format($presentation->sale_price, 2) }}</td>
+                                        <td class="text-success fw-bold">${{ number_format($presentation->sale_price, 2) }}</td>
                                         <td>
                                             <a href="{{ route('products.edit', $presentation->product->id) }}"
                                                 class="btn btn-warning btn-sm" title="Editar Producto">
@@ -141,9 +141,9 @@
                         </tr>`;
             }).join('');
             return `<div class="p-3" style="background-color: #f8f9fa;">
-                        <table class="table table-sm table-bordered">
-                            <thead class="thead-light">
-                                <tr><th>N° Lote</th><th>Stock</th><th>Fecha Exp.</th><th>Estado</th></tr>
+                        <table class="table table-sm table-bordered table-hover" style="background-color: white;">
+                            <thead class="table-light">
+                                <tr><th>Lotes</th><th>Stock</th><th>Fecha Exp.</th><th>Estado</th></tr>
                             </thead>
                             <tbody>
                                 ${batchRows}

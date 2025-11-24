@@ -14,6 +14,7 @@ use App\Http\Controllers\ReportesController;
 use App\Http\Controllers\CortesController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\BatchController;
+use App\Http\Controllers\PurchaseController;
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
@@ -88,6 +89,9 @@ Route::post('presentations', [App\Http\Controllers\PresentationController::class
 Route::get('presentations/{presentation}/edit', [App\Http\Controllers\PresentationController::class, 'edit'])->name('presentations.edit');
 Route::put('presentations/{presentation}', [App\Http\Controllers\PresentationController::class, 'update'])->name('presentations.update');
 Route::delete('presentations/{presentation}', [App\Http\Controllers\PresentationController::class, 'destroy'])->name('presentations.destroy');
+
+// Sección de Compras
+Route::resource('purchases', PurchaseController::class);
 
 //Creación de Usuarios
 Route::get('users/create', [UsuariosController::class, 'create'])->name('users.create');
