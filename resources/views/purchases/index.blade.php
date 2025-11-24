@@ -42,11 +42,14 @@
                             <td>{{ $purchase->user->name ?? 'N/A' }}</td>
 
                             <td>
+                                <a href="{{ route('purchases.edit', $purchase->id) }}" class="btn btn-warning btn-sm" title="Editar Compra">
+                                    <i class="fas fa-edit"></i> Editar
+                                </a>
                                 <form action="{{ route('purchases.destroy', $purchase->id) }}" method="POST" class="d-inline" id="formEliminar{{ $purchase->id }}">
                                     @csrf
                                     @method('DELETE')
                                     <button type="button" class="btn btn-danger btn-sm" title="Eliminar Compra" onclick="confirmarEliminacion({{ $purchase->id }})">
-                                        <i class="fas fa-trash"></i>
+                                        <i class="fas fa-trash"></i> Eliminar
                                     </button>
                                 </form>
                             </td>
