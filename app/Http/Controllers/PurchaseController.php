@@ -102,7 +102,6 @@ class PurchaseController extends Controller
                 }
                 $prodPresentation->save();
 
-                // Se crea el detalle de la compra
                 PurchaseDetail::create([
                     'purchase_id'             => $purchase->id,
                     'product_presentation_id' => $item['product_presentation_id'],
@@ -110,7 +109,7 @@ class PurchaseController extends Controller
                     'product_id'              => $prodPresentation->product_id,
                     'purchase_price'          => $item['purchase_price'],
                     'sale_price'              => $prodPresentation->sale_price,
-                    'stock'                   => $item['quantity'], // Cantidad comprada
+                    'stock'                   => $item['quantity'],
                     'amount_total'            => $item['quantity'] * $item['purchase_price'],
                 ]);
             }
@@ -122,6 +121,147 @@ class PurchaseController extends Controller
             DB::rollBack();
             return back()->with('error', 'Error al registrar compra: ' . $e->getMessage())->withInput();
         }
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'provider_id'      => 'required|exists:providers,id',
+            'reference_number' => 'required|unique:purchases,reference_number,'.$id,
+            'receipt_type'     => 'required',
+            'items'            => 'required|array|min:1',
+            'items.*.product_presentation_id' => 'required|exists:product_presentations,id',
+            'items.*.quantity'                => 'required|integer|min:1',
+            'items.*.purchase_price'          => 'required|numeric|min:0',
+            'items.*.batch_number'            => 'required|string',
+            'items.*.expiration_date'         => 'required|date',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            $purchase = Purchase::with('details')->findOrFail($id);
+
+            // Se obtienen los IDs que sí vienen en el request para saber cuáles borrar
+            $incomingIds = collect($request->items)->pluck('detail_id')->filter()->toArray();
+            
+            $itemsToDelete = PurchaseDetail::where('purchase_id', $id)
+                                           ->whereNotIn('id', $incomingIds)
+                                           ->get();
+
+            foreach ($itemsToDelete as $detailToDelete) {
+                // Se revierte el stock del lote al que pertenecía
+                if ($detailToDelete->batch_id) {
+                    $batch = Batch::find($detailToDelete->batch_id);
+                    if ($batch) {
+                        $batch->stock -= $detailToDelete->stock;
+                        if($batch->stock < 0) $batch->stock = 0;
+                        $batch->save();
+                    }
+                }
+                $detailToDelete->delete();
+            }
+
+            // Se procesan todos los productos relacionados a la compra
+            $nuevoTotalGlobal = 0;
+
+            foreach ($request->items as $item) {
+                // Cálculo para el total de la cabecera
+                $subtotal = $item['quantity'] * $item['purchase_price'];
+                $nuevoTotalGlobal += $subtotal;
+
+                $prodPresentation = ProductPresentation::find($item['product_presentation_id']);
+
+                // Se busca el lote ingresado o se crea uno nuevo de hacer falta
+                $batch = Batch::where('product_presentation_id', $item['product_presentation_id'])
+                              ->where('batch_number', $item['batch_number'])
+                              ->first();
+
+                if (!$batch) {
+                    $batch = Batch::create([
+                        'product_presentation_id' => $item['product_presentation_id'],
+                        'batch_number'            => $item['batch_number'],
+                        'creation_date'           => now(),
+                        'expiration_date'         => $item['expiration_date'],
+                        'stock'                   => 0,
+                        'min_stock'               => 5,
+                        'max_stock'               => 100,
+                    ]);
+                }
+
+                if (isset($item['detail_id']) && $item['detail_id']) {
+                    $detail = PurchaseDetail::find($item['detail_id']);
+                    
+                    // Se revierte el stock
+                    if ($detail->batch_id) {
+                        $oldBatch = Batch::find($detail->batch_id);
+                        if ($oldBatch) {
+                            $oldBatch->stock -= $detail->stock; 
+                            if($oldBatch->stock < 0) $oldBatch->stock = 0; 
+                            $oldBatch->save();
+                        }
+                    }
+
+                    $batch = $batch->fresh(); 
+
+                    // Se actualizan el stock y los detalles
+                    $batch->stock += $item['quantity'];
+                    $batch->save();
+
+                    $detail->update([
+                        'product_presentation_id' => $item['product_presentation_id'],
+                        'batch_id'                => $batch->id,
+                        'purchase_price'          => $item['purchase_price'],
+                        'stock'                   => $item['quantity'],
+                        'amount_total'            => $subtotal,
+                    ]);
+
+                } else {
+                    $batch = $batch->fresh();
+                    
+                    $batch->stock += $item['quantity'];
+                    $batch->save();
+
+                    PurchaseDetail::create([
+                        'purchase_id'             => $purchase->id,
+                        'product_presentation_id' => $item['product_presentation_id'],
+                        'batch_id'                => $batch->id,
+                        'product_id'              => $prodPresentation->product_id,
+                        'purchase_price'          => $item['purchase_price'],
+                        'sale_price'              => $prodPresentation->sale_price,
+                        'stock'                   => $item['quantity'],
+                        'amount_total'            => $subtotal,
+                    ]);
+                }
+
+                // Se actualiza el costo de un producto
+                $prodPresentation->purchase_price = $item['purchase_price'];
+                $prodPresentation->save();
+            }
+
+            $purchase->update([
+                'reference_number' => $request->reference_number,
+                'receipt_type'     => $request->receipt_type,
+                'provider_id'      => $request->provider_id,
+                'amountTotal'      => $nuevoTotalGlobal,
+            ]);
+
+            DB::commit();
+            return redirect()->route('purchases.index')->with('success', 'Compra actualizada correctamente.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Error al actualizar: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    public function edit($id)
+    {
+        $purchase = Purchase::with(['details.product', 'details.productPresentation.presentation', 'details.batch'])->findOrFail($id);
+        $providers = Provider::all();
+        $products = ProductPresentation::with(['product', 'presentation', 'batches'])->get();
+
+        return view('purchases.edit', compact('purchase', 'providers', 'products'));
     }
 
     // Elimina la compra y revierte el stock asociado
