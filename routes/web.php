@@ -14,6 +14,7 @@ use App\Http\Controllers\ReportesController;
 use App\Http\Controllers\CortesController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\BatchController;
+use App\Http\Controllers\CashCutsController;
 use App\Http\Controllers\PurchaseController;
 use Illuminate\Support\Facades\Auth;
 
@@ -133,9 +134,11 @@ Route::get('reportes/ventas', [App\Http\Controllers\ReportsController::class, 'S
 Route::post('reports/predictive-sales', [App\Http\Controllers\ReportsController::class, 'generatePredictiveReportWithGemini'])->name('reports.predictive.sales');
 
 //Sección de Cortes de caja
-Route::get('cortes/creacion', [CortesController::class, 'creacion'])->name('cortes.creacion');
-Route::get('cortes/consultas', [CortesController::class, 'consultas'])->name('cortes.consulta');
-Route::get('cortes/detalles', [CortesController::class, 'detalles'])->name('cortes.detalles');
+// Route::get('cortes/creacion', [CortesController::class, 'creacion'])->name('cortes.creacion');
+// Route::get('cortes/consultas', [CortesController::class, 'consultas'])->name('cortes.consulta');
+// Route::get('cortes/detalles', [CortesController::class, 'detalles'])->name('cortes.detalles');
+Route::resource('cashcuts', CashCutsController::class);
+
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])

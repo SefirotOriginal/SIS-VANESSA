@@ -1,0 +1,242 @@
+@startuml
+skinparam entityStyle rectangle
+
+entity "Category" as Category {
+  * id : int
+  --
+  name : string
+  type : string
+  description : string
+}
+
+entity "Laboratory" as Laboratory {
+  * id : int
+  --
+  name : string
+  state : string
+  contact : string
+  category_id : int
+}
+
+entity "Product" as Product {
+  * id : int
+  --
+  name : string
+  usage : string
+  description : string
+  category_id : int
+  laboratory_id : int
+  status : string
+}
+
+entity "Presentation" as Presentation {
+  * id : int
+  --
+  name : string
+  description : string
+}
+
+entity "ProductPresentation" as ProductPresentation {
+  * id : int
+  --
+  product_id : int
+  presentation_id : int
+  bar_code : string
+  content : string
+  formula : string
+  purchase_price : decimal
+  sale_price : decimal
+}
+
+entity "Batch" as Batch {
+  * id : int
+  --
+  product_presentation_id : int
+  batch_number : string
+  creation_date : date
+  expiration_date : date
+  stock : int
+  min_stock : int
+  max_stock : int
+}
+
+entity "User" as User {
+  * id : int
+  --
+  name : string
+  email : string
+  phoneNumber : string
+  role_id : int
+  profile_photo_path : string
+}
+
+entity "Role" as Role {
+  * id : int
+  --
+  name : string
+  guard_name : string
+}
+
+entity "Permission" as Permission {
+  * id : int
+  --
+  name : string
+  guard_name : string
+}
+
+entity "Sale" as Sale {
+  * id : int
+  --
+  referenceNumber : int
+  receiptType : string
+  amountPayment : decimal
+  amountExchange : decimal
+  amountTotal : decimal
+  user_id : int
+  created_at : datetime
+  updated_at : datetime
+}
+
+entity "DetailSale" as DetailSale {
+  * id : int
+  --
+  sale_id : int
+  product_presentation_id : int
+  product_id : int
+  quantity : int
+  price : decimal
+  subtotal : decimal
+}
+
+entity "Provider" as Provider {
+  * id : int
+  --
+  referenceNumber : int
+  companyName : string
+  email : string
+  phoneNumber : int
+  address : string
+  city : string
+  state : string
+  country : string
+  zipCode : string
+}
+
+entity "Purchase" as Purchase {
+  * id : int
+  --
+  reference_number : int
+  receipt_type : string
+  amountTotal : decimal
+  user_id : int
+  provider_id : int
+  created_at : datetime
+  updated_at : datetime
+}
+
+entity "PurchaseDetails" as PurchaseDetails {
+  * id : int
+  --
+  purchase_id : int
+  product_presentation_id : int
+  batch_id : int
+  purchase_price : decimal
+  sale_price : decimal
+  stock : int
+  amount_total : decimal
+}
+
+entity "Client" as Client {
+  * id : int
+  --
+  clientNumber : int
+  name : string
+  email : string
+  phoneNumber : string
+  address : string
+  currentBalance : decimal
+  limitBalance : decimal
+  outstandingBalance : decimal
+}
+
+entity "ReceivableAccount" as ReceivableAccount {
+  * id : int
+  --
+  movementType : int
+  amount : decimal
+  balancePostMovement : decimal
+  description : string
+  client_id : int
+  sale_id : int
+}
+
+' Pivot Tables for Roles and Permissions (simplified)
+entity "model_has_permissions" {
+  * permission_id : int
+  * model_id : int
+  * model_type : string
+}
+
+entity "model_has_roles" {
+  * role_id : int
+  * model_id : int
+  * model_type : string
+}
+
+entity "role_has_permissions" {
+  * permission_id : int
+  * role_id : int
+}
+
+' Relationships
+Category ||--o{ Laboratory : "has many"
+Category ||--o{ Product : "has many"
+Laboratory ||--o{ Product : "has many"
+Product ||--o{ ProductPresentation : "has many"
+ProductPresentation ||--o{ Batch : "has many"
+Presentation ||--o{ ProductPresentation : "has many"
+
+User ||--o{ Sale : "has many"
+Role ||--o{ User : "has many"
+Sale ||--o{ DetailSale : "has many"
+Product ||--o{ DetailSale : "has many"
+ProductPresentation ||--o{ DetailSale : "has many"
+
+Provider ||--o{ Purchase : "has many"
+User ||--o{ Purchase : "has many"
+Purchase ||--o{ PurchaseDetails : "has many"
+ProductPresentation ||--o{ PurchaseDetails : "has many"
+Batch ||--o{ PurchaseDetails : "has many"
+
+Client ||--o{ ReceivableAccount : "has many"
+Sale ||--o{ ReceivableAccount : "has many"
+
+Role ||--o{ role_has_permissions : "has many"
+Permission ||--o{ role_has_permissions : "has many"
+Role ||--o{ model_has_roles : "has many"
+User ||--o{ model_has_roles : "has many"
+Permission ||--o{ model_has_permissions : "has many"
+User ||--o{ model_has_permissions : "has many"
+
+Batch }o--|| ProductPresentation : "belongs to"
+ProductPresentation }o--|| Product : "belongs to"
+Product }o--|| Laboratory : "belongs to"
+Product }o--|| Category : "belongs to"
+Laboratory }o--|| Category : "belongs to"
+DetailSale }o--|| Sale : "belongs to"
+DetailSale }o--|| Product : "belongs to"
+DetailSale }o--|| ProductPresentation : "belongs to"
+Sale }o--|| User : "belongs to"
+
+PurchaseDetails }o--|| Purchase : "belongs to"
+PurchaseDetails }o--|| ProductPresentation : "belongs to"
+PurchaseDetails }o--|| Batch : "belongs to"
+Purchase }o--|| Provider : "belongs to"
+Purchase }o--|| User : "belongs to"
+
+ReceivableAccount }o--|| Client : "belongs to"
+ReceivableAccount }o--|| Sale : "belongs to"
+
+User }o--|| Role : "belongs to"
+
+@enduml

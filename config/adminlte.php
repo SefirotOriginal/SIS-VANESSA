@@ -434,7 +434,7 @@ return [
         [
             'text' => 'Corte de caja',
             'icon' => 'fas fa-cash-register',
-            'route' => 'cortes.consulta',
+            'route' => 'cashcuts.index',
         ],
 
         // Separador visual
