@@ -9,59 +9,61 @@
 @section('content')
     <div class="card shadow">
         <div class="card-body">
-            <form id="formLabs" action="{{ route('cashcuts.store') }}" method="POST">
-                @csrf
-                <div class="row mb-3">
-                    <div class="col-md-12">
-                        <label for="user_id" class="form-label">User</label>
-                        <input type="text" name="name" id="name" class="form-control" required
-                            value="{{ $user->id }}" readonly>
+            @can('cashcuts.store')
+                <form id="formLabs" action="{{ route('cashcuts.store') }}" method="POST">
+                    @csrf
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="user_id" class="form-label">User</label>
+                            <input type="text" name="name" id="name" class="form-control" required
+                                value="{{ $user->id }}" readonly>
+                        </div>
                     </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="start_time" class="form-label">Hora de inicio</label>
-                        <input type="datetime-local" name="start_time" id="start_time" class="form-control"
-                            value="{{ $startTime }}" required>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="start_time" class="form-label">Hora de inicio</label>
+                            <input type="datetime-local" name="start_time" id="start_time" class="form-control"
+                                value="{{ $startTime }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="end_time" class="form-label">Hora de fin</label>
+                            <input type="datetime-local" name="end_time" id="end_time" class="form-control"
+                                value="{{ $endTime }}" required>
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <label for="end_time" class="form-label">Hora de fin</label>
-                        <input type="datetime-local" name="end_time" id="end_time" class="form-control"
-                            value="{{ $endTime }}" required>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="startAmount" class="form-label">Monto inicial</label>
+                            <input type="number" name="initial_amount" id="initial_amount" class="form-control"
+                                value="{{ $initialAmount }}" step="0.01" required readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="finalAmount" class="form-label">Monto Final</label>
+                            <input type="number" name="final_amount" id="final_amount" class="form-control" step="0.01"
+                                required>
+                        </div>
                     </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="startAmount" class="form-label">Monto inicial</label>
-                        <input type="number" name="initial_amount" id="initial_amount" class="form-control"
-                            value="{{ $initialAmount }}" step="0.01" required readonly>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="realAmount" class="form-label">Monto real</label>
+                            <input type="text" name="real_amount" id="real_amount" class="form-control" required
+                                value=" {{ $realAmount }}" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="diference" class="form-label">Diferiencia</label>
+                            <input type="number" name="diference" id="diference" class="form-control" required>
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <label for="finalAmount" class="form-label">Monto Final</label>
-                        <input type="number" name="final_amount" id="final_amount" class="form-control" step="0.01"
-                            required>
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{{ route('laboratories.index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Cancelar
+                        </a>
+                        <button type="button" class="btn btn-primary" id="btnSave">
+                            <i class="fas fa-save"></i> Guardar corte de caja
+                        </button>
                     </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="realAmount" class="form-label">Monto real</label>
-                        <input type="text" name="real_amount" id="real_amount" class="form-control" required
-                            value=" {{ $realAmount }}" readonly>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="diference" class="form-label">Diferiencia</label>
-                        <input type="number" name="diference" id="diference" class="form-control" required>
-                    </div>
-                </div>
-                <div class="d-flex justify-content-between mt-4">
-                    <a href="{{ route('laboratories.index') }}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Cancelar
-                    </a>
-                    <button type="button" class="btn btn-primary" id="btnSave">
-                        <i class="fas fa-save"></i> Guardar corte de caja
-                    </button>
-                </div>
-            </form>
+                </form>
+            @endcan
         </div>
     </div>
 @stop

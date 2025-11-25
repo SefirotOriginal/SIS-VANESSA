@@ -10,9 +10,11 @@
     <div class="card shadow">
         <div class="card-body">
             <div class="row mt-4">
-                <a href="{{ route('products.create') }}" class="btn btn-primary mb-3">
-                    <i class="fas fa-plus"></i> Crear producto
-                </a>
+                @can('product.create')
+                    <a href="{{ route('products.create') }}" class="btn btn-primary mb-3">
+                        <i class="fas fa-plus"></i> Crear producto
+                    </a>
+                @endcan
                 <div class="table-responsive">
                     {{-- Se aplican tus clases originales a la tabla --}}
                     <table id="productsTable" class="table table-striped text-center" style="width:100%">
@@ -42,7 +44,8 @@
                                         <td>{{ $presentation->formula ?? '-' }}</td>
                                         <td>{{ $presentation->product->laboratory->name ?? 'N/A' }}</td>
                                         <td>{{ $presentation->bar_code }}</td>
-                                        <td class="text-success fw-bold">${{ number_format($presentation->sale_price, 2) }}</td>
+                                        <td class="text-success fw-bold">${{ number_format($presentation->sale_price, 2) }}
+                                        </td>
                                         <td>
                                             <a href="{{ route('products.edit', $presentation->product->id) }}"
                                                 class="btn btn-warning btn-sm" title="Editar Producto">

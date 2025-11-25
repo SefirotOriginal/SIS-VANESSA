@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
+
         User::updateOrCreate(
             [
                 'email' => 'admin@admin.com'
@@ -32,6 +33,8 @@ class DatabaseSeeder extends Seeder
             ProductsSeeder::class,
 
             // Add other seeders here
+            AssignSuperUserToTestSeeder::class,
+            AssignPermissionsToRolesSeeder::class,
         ]);
     }
 }

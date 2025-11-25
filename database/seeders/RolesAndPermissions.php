@@ -45,7 +45,7 @@ class RolesAndPermissions extends Seeder
 
         $permissions = [];
 
-        $controllerPath = app_path('Http/Controllers');
+        $controllerPath = app_path('Http/Controllers' && '');
         $controllers = File::allFiles($controllerPath);
 
         foreach ($controllers as $controller) {

@@ -7,13 +7,21 @@ use Illuminate\Http\Request;
 
 class LaboratoryController extends Controller
 {
+    public function __construct()
+    {
+        // Proteger todas las rutas de este controlador
+        $this->middleware('can:laboratory.index')->only('index');
+        $this->middleware('can:laboratory.create')->only(['create', 'store']);
+        $this->middleware('can:laboratory.edit')->only(['edit', 'update']);
+        $this->middleware('can:laboratory.destroy')->only('destroy');
+    }
+
     /**
      * Muestra la lista de laboratorios.
      */
     public function index()
     {
         $laboratories = Laboratory::all();
-        // Asegúrate de que la ruta de tu vista sea correcta (ej: 'admin.laboratory.index')
         return view('admin.laboratory.index', compact('laboratories'));
     }
 
@@ -23,10 +31,10 @@ class LaboratoryController extends Controller
     public function create()
     {
         $states = [
-            'Aguascalientes', 'Baja California', 'Baja California Sur', 'Campeche', 'Chiapas', 
-            'Chihuahua', 'Ciudad de México', 'Coahuila', 'Colima', 'Durango', 'Guanajuato', 
-            'Guerrero', 'Hidalgo', 'Jalisco', 'México', 'Michoacán', 'Morelos', 'Nayarit', 
-            'Nuevo León', 'Oaxaca', 'Puebla', 'Querétaro', 'Quintana Roo', 'San Luis Potosí', 
+            'Aguascalientes', 'Baja California', 'Baja California Sur', 'Campeche', 'Chiapas',
+            'Chihuahua', 'Ciudad de México', 'Coahuila', 'Colima', 'Durango', 'Guanajuato',
+            'Guerrero', 'Hidalgo', 'Jalisco', 'México', 'Michoacán', 'Morelos', 'Nayarit',
+            'Nuevo León', 'Oaxaca', 'Puebla', 'Querétaro', 'Quintana Roo', 'San Luis Potosí',
             'Sinaloa', 'Sonora', 'Tabasco', 'Tamaulipas', 'Tlaxcala', 'Veracruz', 'Yucatán', 'Zacatecas'
         ];
         return view('admin.laboratory.create', compact('states'));
@@ -44,7 +52,7 @@ class LaboratoryController extends Controller
         ]);
 
         Laboratory::create($request->all());
-        return redirect()->route('laboratories.index')->with('success', 'Laboratorio creado exitosamente.');    
+        return redirect()->route('laboratories.index')->with('success', 'Laboratorio creado exitosamente.');
     }
 
     /**
@@ -53,10 +61,10 @@ class LaboratoryController extends Controller
     public function edit(Laboratory $laboratory)
     {
         $states = [
-            'Aguascalientes', 'Baja California', 'Baja California Sur', 'Campeche', 'Chiapas', 
-            'Chihuahua', 'Ciudad de México', 'Coahuila', 'Colima', 'Durango', 'Guanajuato', 
-            'Guerrero', 'Hidalgo', 'Jalisco', 'México', 'Michoacán', 'Morelos', 'Nayarit', 
-            'Nuevo León', 'Oaxaca', 'Puebla', 'Querétaro', 'Quintana Roo', 'San Luis Potosí', 
+            'Aguascalientes', 'Baja California', 'Baja California Sur', 'Campeche', 'Chiapas',
+            'Chihuahua', 'Ciudad de México', 'Coahuila', 'Colima', 'Durango', 'Guanajuato',
+            'Guerrero', 'Hidalgo', 'Jalisco', 'México', 'Michoacán', 'Morelos', 'Nayarit',
+            'Nuevo León', 'Oaxaca', 'Puebla', 'Querétaro', 'Quintana Roo', 'San Luis Potosí',
             'Sinaloa', 'Sonora', 'Tabasco', 'Tamaulipas', 'Tlaxcala', 'Veracruz', 'Yucatán', 'Zacatecas'
         ];
 

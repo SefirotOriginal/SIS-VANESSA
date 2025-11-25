@@ -9,6 +9,13 @@ use Illuminate\Support\Facades\Storage;
 
 class UsuariosController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:usuarios.index')->only('index');
+        $this->middleware('permission:usuarios.create|usuarios.store')->only(['create', 'store']);
+        $this->middleware('permission:usuarios.edit|usuarios.update')->only(['edit', 'update']);
+        $this->middleware('permission:usuarios.destroy')->only('destroy');
+    }
     public function create()
     {
         $roles = Role::all();
@@ -32,6 +39,23 @@ class UsuariosController extends Controller
             $path = $request->file('imagenPerfil')->store('profile_pictures', 'public');
         }
 
+        // Verificar jerarquía de roles antes de crear
+        $requestedRole = $request->role;
+        $levels = config('roles.levels', []);
+        $requestedLevel = $levels[$requestedRole] ?? 0;
+
+        $currentUser = auth()->user();
+        $currentUserRoles = $currentUser ? $currentUser->getRoleNames()->toArray() : [];
+        $currentMaxLevel = 0;
+        foreach ($currentUserRoles as $r) {
+            $currentMaxLevel = max($currentMaxLevel, $levels[$r] ?? 0);
+        }
+
+        // Si no es SuperUsuario y está intentando crear un rol de mayor nivel => denegar
+        if (!in_array('SuperUsuario', $currentUserRoles, true) && $requestedLevel > $currentMaxLevel) {
+            return redirect()->back()->withInput()->with('error', 'No puedes crear usuarios con un rol superior al tuyo.');
+        }
+
         $user = Usuario::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -39,7 +63,6 @@ class UsuariosController extends Controller
             'password' => bcrypt($request->password),
             'profile_photo_path' => $path
         ]);
-
         $user->assignRole($request->role);
         return redirect()->route('users.index')->with('success', 'Usuario registrado correctamente.');
     }
@@ -101,6 +124,22 @@ class UsuariosController extends Controller
         }
 
         $usuario->save();
+
+        // Verificar jerarquía de roles al actualizar rol
+        $requestedRole = $request->role;
+        $levels = config('roles.levels', []);
+        $requestedLevel = $levels[$requestedRole] ?? 0;
+
+        $currentUser = auth()->user();
+        $currentUserRoles = $currentUser ? $currentUser->getRoleNames()->toArray() : [];
+        $currentMaxLevel = 0;
+        foreach ($currentUserRoles as $r) {
+            $currentMaxLevel = max($currentMaxLevel, $levels[$r] ?? 0);
+        }
+
+        if (!in_array('SuperUsuario', $currentUserRoles, true) && $requestedLevel > $currentMaxLevel) {
+            return redirect()->back()->withInput()->with('error', 'No puedes asignar un rol superior al tuyo.');
+        }
 
         $usuario->syncRoles($request->role);
         return redirect()->route('users.index')->with('success', 'Usuario actualizado exitosamente.');

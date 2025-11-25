@@ -10,6 +10,13 @@ use Illuminate\Http\Request;
 
 class RoleController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:role.index')->only('index');
+        $this->middleware('permission:role.create|role.store')->only(['create', 'store']);
+        $this->middleware('permission:role.edit|role.update')->only(['edit', 'update']);
+        $this->middleware('permission:role.destroy')->only('destroy');
+    }
     /**
      * Display a listing of the resource.
      */
@@ -41,17 +48,17 @@ class RoleController extends Controller
             'guard_name' => 'required',
             'permissions' => 'nullable|array', // Es 'nullable' por si no se marca ningun rol
         ]);
-        
+
         $role = Role::create([
             'name' => $validated['name'],
             'guard_name' => $validated['guard_name'],
         ]);
-        
+
         // 'permissions' puede no existir si no se marcó ninguno
         if (!empty($validated['permissions'])) {
             $role->syncPermissions($validated['permissions']);
         }
-        
+
         return redirect()->route('roles.index')->with('success', 'Rol creado exitosamente.');
     }
 
@@ -69,7 +76,7 @@ class RoleController extends Controller
     public function edit($id)
     {
         $role = Role::find($id);
-        
+
         // Obtenemos TODOS los permisos
         $permissions = Permission::all();
 
@@ -86,7 +93,7 @@ class RoleController extends Controller
         $this->validate($request, [
             'name' => 'required',
             // Validamos 'permissions'
-            'permissions' => 'nullable|array' 
+            'permissions' => 'nullable|array'
         ]);
 
         $role = Role::find($id);
@@ -99,10 +106,10 @@ class RoleController extends Controller
         $permissions = $request->input('permissions') ?? [];
 
         // Sincronizamos usando el array de nombres.
-        $role->syncPermissions($permissions); 
+        $role->syncPermissions($permissions);
 
         return redirect()->route('roles.index')
-                        ->with('success','Rol actualizado exitosamente.');
+            ->with('success', 'Rol actualizado exitosamente.');
     }
 
     /**

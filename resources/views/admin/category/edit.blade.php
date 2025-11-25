@@ -16,17 +16,30 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="name" class="form-label">Nombre de la Categoría</label>
-                        <input type="text" name="name" id="name" class="form-control" value="{{ $category->name }}" required>
+                        <input type="text" name="name" id="name" class="form-control"
+                            value="{{ $category->name }}" required>
                     </div>
                     <div class="col-md-6">
                         <label for="type" class="form-label">Tipo</label>
                         @php
-                            $types = ['Analgésico', 'Antibiótico', 'Antiinflamatorio', 'Antihistamínico', 'Antipirético', 'Jarabe', 'Ungüento', 'Suplemento', 'Vitamina', 'Otro'];
+                            $types = [
+                                'Analgésico',
+                                'Antibiótico',
+                                'Antiinflamatorio',
+                                'Antihistamínico',
+                                'Antipirético',
+                                'Jarabe',
+                                'Ungüento',
+                                'Suplemento',
+                                'Vitamina',
+                                'Otro',
+                            ];
                         @endphp
                         <select name="type" id="type" class="form-control" required>
                             <option value="" disabled>Seleccione un tipo</option>
                             @foreach ($types as $type)
-                                <option value="{{ $type }}" @if($category->type == $type) selected @endif>{{ $type }}</option>
+                                <option value="{{ $type }}" @if ($category->type == $type) selected @endif>
+                                    {{ $type }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -39,13 +52,18 @@
                 </div>
 
                 <div class="d-flex justify-content-between mt-4">
-                    <a href="{{ route('categories.index') }}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Cancelar
-                    </a>
-                    {{-- CAMBIO: Se cambió btn-primary por btn-success para el color verde --}}
-                    <button type="button" class="btn btn-success" id="btnSave">
-                        <i class="fas fa-sync-alt"></i> Guardar Cambios
-                    </button>
+                    @can('category.index')
+                        <a href="{{ route('categories.index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Cancelar
+                        </a>
+                    @endcan
+
+                    @can('category.edit')
+                        {{-- CAMBIO: Se cambió btn-primary por btn-success para el color verde --}}
+                        <button type="button" class="btn btn-success" id="btnSave">
+                            <i class="fas fa-sync-alt"></i> Guardar Cambios
+                        </button>
+                    @endcan
                 </div>
             </form>
         </div>

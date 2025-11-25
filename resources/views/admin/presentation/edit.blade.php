@@ -26,12 +26,17 @@
                 {{-- Campo contact eliminado por el usuario: no pertenece al formulario de presentaciones --}}
 
                 <div class="d-flex justify-content-between mt-4">
-                    <a href="{{ route('presentations.index') }}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Cancelar
-                    </a>
-                    <button type="button" class="btn btn-success" id="btnUpdate">
-                        <i class="fas fa-sync-alt"></i> Guardar Cambios
-                    </button>
+                    @can('presentation.index')
+                        <a href="{{ route('presentations.index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Cancelar
+                        </a>
+                    @endcan
+
+                    @can('presentation.edit')
+                        <button type="button" class="btn btn-success" id="btnUpdate">
+                            <i class="fas fa-sync-alt"></i> Guardar Cambios
+                        </button>
+                    @endcan
                 </div>
             </form>
         </div>

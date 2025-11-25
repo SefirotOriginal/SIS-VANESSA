@@ -24,12 +24,17 @@
                 </div>
 
                 <div class="d-flex justify-content-between mt-4">
-                    <a href="{{ route('presentations.index') }}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Cancelar
-                    </a>
-                    <button type="button" class="btn btn-primary" id="btnSave">
-                        <i class="fas fa-save"></i> Guardar Presentacion
-                    </button>
+                    @can('presentation.index')
+                        <a href="{{ route('presentations.index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Cancelar
+                        </a>
+                    @endcan
+
+                    @can('presentation.create')
+                        <button type="button" class="btn btn-primary" id="btnSave">
+                            <i class="fas fa-save"></i> Guardar Presentacion
+                        </button>
+                    @endcan
                 </div>
             </form>
         </div>

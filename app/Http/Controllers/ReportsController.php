@@ -17,6 +17,11 @@ use Illuminate\Support\Facades\Validator;
 
 class ReportsController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:reports.Sales')->only('Sales');
+        $this->middleware('permission:reports.generatePredictiveReportWithGemini')->only('generatePredictiveReportWithGemini');
+    }
     /**
      * Display a listing of the resource.
      */

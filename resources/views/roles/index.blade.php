@@ -3,33 +3,47 @@
 @section('title', 'Consultar Roles')
 
 @php
-if (!function_exists('getPermissionBadgeClass')) {
-    function getPermissionBadgeClass($permissionName) {
-        $action = last(explode('.', $permissionName));
-        switch ($action) {
-            case 'create': case 'store': return 'bg-success';
-            case 'index': case 'view': case 'show': case 'read': return 'bg-info text-dark';
-            case 'edit': case 'update': return 'bg-warning text-dark';
-            case 'delete': case 'destroy': return 'bg-danger';
-            default: return 'bg-secondary';
+    if (!function_exists('getPermissionBadgeClass')) {
+        function getPermissionBadgeClass($permissionName)
+        {
+            $action = last(explode('.', $permissionName));
+            switch ($action) {
+                case 'create':
+                case 'store':
+                    return 'bg-success';
+                case 'index':
+                case 'view':
+                case 'show':
+                case 'read':
+                    return 'bg-info text-dark';
+                case 'edit':
+                case 'update':
+                    return 'bg-warning text-dark';
+                case 'delete':
+                case 'destroy':
+                    return 'bg-danger';
+                default:
+                    return 'bg-secondary';
+            }
         }
     }
-}
 @endphp
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
         <h1><b>Roles</b></h1>
-        <a href="{{ route('roles.create') }}" class="btn btn-primary">
-            <i class="fas fa-user-shield"></i> Crear rol
-        </a>
+        @can('role.create')
+            <a href="{{ route('roles.create') }}" class="btn btn-primary">
+                <i class="fas fa-user-shield"></i> Crear rol
+            </a>
+        @endcan
     </div>
 @stop
 
 @section('content')
     <div class="container-fluid px-0" style="max-height: calc(100vh - 150px); overflow-y: auto;">
 
-        @if(session('success'))
+        @if (session('success'))
             {{-- El JS al final se encargará de mostrar esto --}}
         @endif
 
@@ -50,7 +64,7 @@ if (!function_exists('getPermissionBadgeClass')) {
                             <div class="card-text mb-1">
                                 <small>
                                     <b>Permisos:</b>
-                                    @if($role->permissions->isEmpty())
+                                    @if ($role->permissions->isEmpty())
                                         <span class="text-muted">Sin permisos asignados</span>
                                     @else
                                         <details class="permission-details">
@@ -58,8 +72,9 @@ if (!function_exists('getPermissionBadgeClass')) {
                                                 {{ $role->permissions->count() }} permisos asignados (clic para ver)
                                             </summary>
                                             <div class="permission-list-expanded mt-2">
-                                                @foreach($role->permissions->sortBy('name') as $permission)
-                                                    <span class="badge {{ getPermissionBadgeClass($permission->name) }} me-1 mb-1">
+                                                @foreach ($role->permissions->sortBy('name') as $permission)
+                                                    <span
+                                                        class="badge {{ getPermissionBadgeClass($permission->name) }} me-1 mb-1">
                                                         {{ $permission->name }}
                                                     </span>
                                                 @endforeach
@@ -68,20 +83,27 @@ if (!function_exists('getPermissionBadgeClass')) {
                                     @endif
                                 </small>
                             </div>
-                            
-                            <div class="mt-auto d-flex justify-content-end gap-2 pt-3">
-                                <a href="{{ route('roles.edit', $role->id) }}" class="btn btn-sm btn-warning" title="Editar">
-                                    <i class="fas fa-edit"></i> Editar
-                                </a>
 
-                                @if($role->name !== 'Super Admin' && $role->name !== 'Admin')
-                                    <form action="{{ route('roles.destroy', $role->id) }}" method="POST" class="d-inline" id="formEliminar{{ $role->id }}">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="button" class="btn btn-sm btn-danger" title="Eliminar" onclick="confirmarEliminacion({{ $role->id }})">
-                                            <i class="fas fa-trash"></i> Eliminar
-                                        </button>
-                                    </form>
+                            <div class="mt-auto d-flex justify-content-end gap-2 pt-3">
+                                @can('role.edit')
+                                    <a href="{{ route('roles.edit', $role->id) }}" class="btn btn-sm btn-warning"
+                                        title="Editar">
+                                        <i class="fas fa-edit"></i> Editar
+                                    </a>
+                                @endcan
+
+                                @if ($role->name !== 'Super Admin' && $role->name !== 'Admin')
+                                    @can('role.destroy')
+                                        <form action="{{ route('roles.destroy', $role->id) }}" method="POST" class="d-inline"
+                                            id="formEliminar{{ $role->id }}">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="button" class="btn btn-sm btn-danger" title="Eliminar"
+                                                onclick="confirmarEliminacion({{ $role->id }})">
+                                                <i class="fas fa-trash"></i> Eliminar
+                                            </button>
+                                        </form>
+                                    @endcan
                                 @endif
                             </div>
                         </div>
@@ -98,26 +120,39 @@ if (!function_exists('getPermissionBadgeClass')) {
 
 @section('css')
     <style>
-        html, body { height: 100%; overflow: hidden;}
-        .content-wrapper { background-color: #f1f1f1; }
-        .card-body { background-color: #ffffff; }
+        html,
+        body {
+            height: 100%;
+            overflow: hidden;
+        }
 
-        .permission-details > summary {
+        .content-wrapper {
+            background-color: #f1f1f1;
+        }
+
+        .card-body {
+            background-color: #ffffff;
+        }
+
+        .permission-details>summary {
             cursor: pointer;
             color: #007bff;
             list-style: none;
             display: inline-block;
             font-weight: bold;
         }
-        .permission-details > summary::-webkit-details-marker {
+
+        .permission-details>summary::-webkit-details-marker {
             display: none;
         }
-        .permission-details > summary::before {
+
+        .permission-details>summary::before {
             content: '► ';
             font-size: 0.8em;
             color: #6c757d;
         }
-        .permission-details[open] > summary::before {
+
+        .permission-details[open]>summary::before {
             content: '▼ ';
         }
 

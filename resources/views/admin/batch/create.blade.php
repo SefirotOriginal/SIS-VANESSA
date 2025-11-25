@@ -18,10 +18,12 @@
                     </div>
                     <div class="col-md-6">
                         <label for="product_presentation_id" class="form-label">Producto</label>
-                        <select name="product_presentation_id" id="product_presentation_id" class="form-control form-select" required>
+                        <select name="product_presentation_id" id="product_presentation_id" class="form-control form-select"
+                            required>
                             <option value="" selected disabled>Selecciona un producto</option>
                             @foreach ($products_presentation as $presentation)
-                                <option value="{{ $presentation->id }}">{{ $presentation->product->name }} ({{ $presentation->presentation->name }})</option>
+                                <option value="{{ $presentation->id }}">{{ $presentation->product->name }}
+                                    ({{ $presentation->presentation->name }})</option>
                             @endforeach
                         </select>
                     </div>
@@ -52,12 +54,17 @@
                 </div>
 
                 <div class="d-flex justify-content-between mt-4">
-                    <a href="{{route('batches.index')}}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Cancelar
-                    </a>
-                    <button type="button" class="btn btn-primary" id="btnSave">
-                        <i class="fas fa-save"></i> Guardar lote
-                    </button>
+                    @can('batch.index')
+                        <a href="{{ route('batches.index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Cancelar
+                        </a>
+                    @endcan
+
+                    @can('batch.create')
+                        <button type="button" class="btn btn-primary" id="btnSave">
+                            <i class="fas fa-save"></i> Guardar Lote
+                        </button>
+                    @endcan
                 </div>
             </form>
         </div>

@@ -14,7 +14,8 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="name" class="form-label">Nombre de la Categoría</label>
-                        <input type="text" name="name" id="name" class="form-control" placeholder="Ej. Analgésicos" required>
+                        <input type="text" name="name" id="name" class="form-control"
+                            placeholder="Ej. Analgésicos" required>
                     </div>
                     <div class="col-md-6">
                         <label for="type" class="form-label">Tipo</label>
@@ -37,16 +38,25 @@
                 <div class="row mb-3">
                     <div class="col-md-12">
                         <label for="description" class="form-label">Descripción (Opcional)</label>
-                        <textarea name="description" id="description" class="form-control" placeholder="Pequeña descripción de la categoría" rows="3"></textarea>
+                        <textarea name="description" id="description" class="form-control" placeholder="Pequeña descripción de la categoría"
+                            rows="3"></textarea>
                     </div>
                 </div>
                 <div class="d-flex justify-content-between mt-4">
                     <a href="{{ route('categories.index') }}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Cancelar
                     </a>
-                    <button type="button" class="btn btn-primary" id="btnSave">
-                        <i class="fas fa-save"></i> Guardar Categoría
-                    </button>
+                    @can('category.index')
+                        <a href="{{ route('categories.index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Cancelar
+                        </a>
+                    @endcan
+
+                    @can('category.create')
+                        <button type="button" class="btn btn-primary" id="btnSave">
+                            <i class="fas fa-save"></i> Guardar Categoría
+                        </button>
+                    @endcan
                 </div>
             </form>
         </div>

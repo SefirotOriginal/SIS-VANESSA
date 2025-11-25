@@ -9,38 +9,43 @@
 @section('content')
     <div class="card shadow">
         <div class="card-body">
-            <form id="formLabs" action="{{ route('laboratories.store') }}" method="POST">
-                @csrf
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="name" class="form-label">Nombre del Laboratorio</label>
-                        <input type="text" name="name" id="name" class="form-control" placeholder="Ej. Bayer" required>
+            @can('laboratory.store')
+
+                <form id="formLabs" action="{{ route('laboratories.store') }}" method="POST">
+                    @csrf
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">Nombre del Laboratorio</label>
+                            <input type="text" name="name" id="name" class="form-control" placeholder="Ej. Bayer"
+                                required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="state" class="form-label">Estado</label>
+                            <select name="state" id="state" class="form-control" required>
+                                <option value="" selected disabled>Seleccione un estado</option>
+                                @foreach ($states as $state)
+                                    <option value="{{ $state }}">{{ $state }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <label for="state" class="form-label">Estado</label>
-                        <select name="state" id="state" class="form-control" required>
-                            <option value="" selected disabled>Seleccione un estado</option>
-                            @foreach($states as $state)
-                                <option value="{{ $state }}">{{ $state }}</option>
-                            @endforeach
-                        </select>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="contact" class="form-label">Contacto (Teléfono o Email)</label>
+                            <input type="text" name="contact" id="contact" class="form-control"
+                                placeholder="Ej. 55-1234-5678 o contacto@bayer.com" required>
+                        </div>
                     </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-12">
-                        <label for="contact" class="form-label">Contacto (Teléfono o Email)</label>
-                        <input type="text" name="contact" id="contact" class="form-control" placeholder="Ej. 55-1234-5678 o contacto@bayer.com" required>
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{{ route('laboratories.index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Cancelar
+                        </a>
+                        <button type="button" class="btn btn-primary" id="btnSave">
+                            <i class="fas fa-save"></i> Guardar Laboratorio
+                        </button>
                     </div>
-                </div>
-                <div class="d-flex justify-content-between mt-4">
-                    <a href="{{ route('laboratories.index') }}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Cancelar
-                    </a>
-                    <button type="button" class="btn btn-primary" id="btnSave">
-                        <i class="fas fa-save"></i> Guardar Laboratorio
-                    </button>
-                </div>
-            </form>
+                </form>
+            @endcan
         </div>
     </div>
 @stop

@@ -8,6 +8,13 @@ use Illuminate\Http\Request;
 
 class BatchController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:batch.index')->only('index');
+        $this->middleware('permission:batch.create|batch.store')->only(['create', 'store']);
+        $this->middleware('permission:batch.edit|batch.update')->only(['edit', 'update']);
+        $this->middleware('permission:batch.destroy')->only('destroy');
+    }
     public function index()
     {
         $batches = Batch::with('productPresentation.product')->latest()->get();

@@ -11,6 +11,13 @@ use Illuminate\Http\Request;
 
 class CashCutsController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:cashcuts.index')->only('index');
+        $this->middleware('permission:cashcuts.create|cashcuts.store')->only(['create', 'store']);
+        $this->middleware('permission:cashcuts.edit|cashcuts.update')->only(['edit', 'update']);
+        $this->middleware('permission:cashcuts.destroy')->only('destroy');
+    }
     /**
      * Display a listing of the resource.
      */
@@ -25,7 +32,7 @@ class CashCutsController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create() 
     {
         $user = auth()->user();
 

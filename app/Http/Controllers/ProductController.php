@@ -13,6 +13,13 @@ use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:product.index')->only('index');
+        $this->middleware('permission:product.create|product.store')->only(['create', 'store']);
+        $this->middleware('permission:product.edit|product.update')->only(['edit', 'update']);
+        $this->middleware('permission:product.destroy')->only('destroy');
+    }
     public function index()
     {
         $productPresentations = \App\Models\ProductPresentation::with(

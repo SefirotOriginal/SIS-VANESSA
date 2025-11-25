@@ -157,3 +157,8 @@ require __DIR__ . '/auth.php';
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+// Ruta para mostrar página cuando el usuario no tiene permisos
+Route::get('error/permission', function () {
+    return view('errors.403');
+})->name('error.permission');

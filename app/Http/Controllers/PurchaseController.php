@@ -13,6 +13,13 @@ use App\Models\Batch;
 
 class PurchaseController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:purchase.index')->only('index');
+        $this->middleware('permission:purchase.create|purchase.store')->only(['create', 'store']);
+        $this->middleware('permission:purchase.edit|purchase.update')->only(['edit', 'update']);
+        $this->middleware('permission:purchase.destroy')->only('destroy');
+    }
     public function index()
     {
         $purchases = Purchase::with([
@@ -30,7 +37,7 @@ class PurchaseController extends Controller
     {
         $providers = Provider::all();
         $products = ProductPresentation::with(['product', 'presentation', 'batches'])->get();
-        
+
         return view('purchases.create', compact('providers', 'products'));
     }
 
@@ -55,7 +62,7 @@ class PurchaseController extends Controller
 
         try {
             $totalCompra = 0;
-            foreach($request->items as $item){
+            foreach ($request->items as $item) {
                 $totalCompra += ($item['quantity'] * $item['purchase_price']);
             }
 
@@ -68,13 +75,13 @@ class PurchaseController extends Controller
             ]);
 
             foreach ($request->items as $item) {
-                
+
                 $prodPresentation = ProductPresentation::find($item['product_presentation_id']);
 
                 // Se busca si ya existe el lote ingresado para este producto específico
                 $batch = Batch::where('product_presentation_id', $item['product_presentation_id'])
-                              ->where('batch_number', $item['batch_number'])
-                              ->first();
+                    ->where('batch_number', $item['batch_number'])
+                    ->first();
 
                 if ($batch) {
                     // Si el lote existe, se suma al stock
@@ -95,10 +102,10 @@ class PurchaseController extends Controller
 
                 // Se actualiza el costo del producto al precio de esta compra
                 $prodPresentation->purchase_price = $item['purchase_price'];
-                
+
                 // Si el usuario definió un nuevo precio de venta, se actualiza también
-                if(!empty($item['sale_price'])){
-                     $prodPresentation->sale_price = $item['sale_price'];
+                if (!empty($item['sale_price'])) {
+                    $prodPresentation->sale_price = $item['sale_price'];
                 }
                 $prodPresentation->save();
 
@@ -116,7 +123,6 @@ class PurchaseController extends Controller
 
             DB::commit();
             return redirect()->route('purchases.index')->with('success', 'Compra registrada y stock actualizado correctamente.');
-
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Error al registrar compra: ' . $e->getMessage())->withInput();
@@ -127,7 +133,7 @@ class PurchaseController extends Controller
     {
         $request->validate([
             'provider_id'      => 'required|exists:providers,id',
-            'reference_number' => 'required|unique:purchases,reference_number,'.$id,
+            'reference_number' => 'required|unique:purchases,reference_number,' . $id,
             'receipt_type'     => 'required',
             'items'            => 'required|array|min:1',
             'items.*.product_presentation_id' => 'required|exists:product_presentations,id',
@@ -144,10 +150,10 @@ class PurchaseController extends Controller
 
             // Se obtienen los IDs que sí vienen en el request para saber cuáles borrar
             $incomingIds = collect($request->items)->pluck('detail_id')->filter()->toArray();
-            
+
             $itemsToDelete = PurchaseDetail::where('purchase_id', $id)
-                                           ->whereNotIn('id', $incomingIds)
-                                           ->get();
+                ->whereNotIn('id', $incomingIds)
+                ->get();
 
             foreach ($itemsToDelete as $detailToDelete) {
                 // Se revierte el stock del lote al que pertenecía
@@ -155,7 +161,7 @@ class PurchaseController extends Controller
                     $batch = Batch::find($detailToDelete->batch_id);
                     if ($batch) {
                         $batch->stock -= $detailToDelete->stock;
-                        if($batch->stock < 0) $batch->stock = 0;
+                        if ($batch->stock < 0) $batch->stock = 0;
                         $batch->save();
                     }
                 }
@@ -174,8 +180,8 @@ class PurchaseController extends Controller
 
                 // Se busca el lote ingresado o se crea uno nuevo de hacer falta
                 $batch = Batch::where('product_presentation_id', $item['product_presentation_id'])
-                              ->where('batch_number', $item['batch_number'])
-                              ->first();
+                    ->where('batch_number', $item['batch_number'])
+                    ->first();
 
                 if (!$batch) {
                     $batch = Batch::create([
@@ -191,18 +197,18 @@ class PurchaseController extends Controller
 
                 if (isset($item['detail_id']) && $item['detail_id']) {
                     $detail = PurchaseDetail::find($item['detail_id']);
-                    
+
                     // Se revierte el stock
                     if ($detail->batch_id) {
                         $oldBatch = Batch::find($detail->batch_id);
                         if ($oldBatch) {
-                            $oldBatch->stock -= $detail->stock; 
-                            if($oldBatch->stock < 0) $oldBatch->stock = 0; 
+                            $oldBatch->stock -= $detail->stock;
+                            if ($oldBatch->stock < 0) $oldBatch->stock = 0;
                             $oldBatch->save();
                         }
                     }
 
-                    $batch = $batch->fresh(); 
+                    $batch = $batch->fresh();
 
                     // Se actualizan el stock y los detalles
                     $batch->stock += $item['quantity'];
@@ -215,10 +221,9 @@ class PurchaseController extends Controller
                         'stock'                   => $item['quantity'],
                         'amount_total'            => $subtotal,
                     ]);
-
                 } else {
                     $batch = $batch->fresh();
-                    
+
                     $batch->stock += $item['quantity'];
                     $batch->save();
 
@@ -248,7 +253,6 @@ class PurchaseController extends Controller
 
             DB::commit();
             return redirect()->route('purchases.index')->with('success', 'Compra actualizada correctamente.');
-
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Error al actualizar: ' . $e->getMessage())->withInput();
@@ -277,16 +281,16 @@ class PurchaseController extends Controller
             foreach ($purchase->details as $detail) {
                 if ($detail->batch_id) {
                     $batch = Batch::find($detail->batch_id);
-                    
+
                     if ($batch) {
                         // Se resta la cantidad que se había comprado
-                        $batch->stock -= $detail->stock; 
-                        
+                        $batch->stock -= $detail->stock;
+
                         // Se evitan los números negativos si es que ya se vendió mercancía
                         if ($batch->stock < 0) {
-                            $batch->stock = 0; 
+                            $batch->stock = 0;
                         }
-                        
+
                         $batch->save();
                     }
                 }
@@ -296,7 +300,6 @@ class PurchaseController extends Controller
 
             DB::commit();
             return redirect()->route('purchases.index')->with('success', 'Compra eliminada y stock revertido correctamente.');
-
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->route('purchases.index')->with('error', 'Error al eliminar la compra: ' . $e->getMessage());

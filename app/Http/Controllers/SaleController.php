@@ -15,6 +15,15 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class SaleController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:sale.index')->only('index');
+        $this->middleware('permission:sale.create|sale.store')->only(['create', 'store']);
+        $this->middleware('permission:sale.show|sale.print_receipt')->only(['show', 'print_receipt']);
+        $this->middleware('permission:sale.return_Sale|sale.process_return')->only(['return_Sale', 'process_return']);
+        $this->middleware('permission:sale.edit|sale.update')->only(['edit', 'update']);
+        $this->middleware('permission:sale.destroy')->only('destroy');
+    }
     /**
      * Display a listing of the resource.
      */

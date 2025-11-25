@@ -7,6 +7,13 @@ use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:category.index')->only('index');
+        $this->middleware('permission:category.create|category.store')->only(['create', 'store']);
+        $this->middleware('permission:category.edit|category.update')->only(['edit', 'update']);
+        $this->middleware('permission:category.destroy')->only('destroy');
+    }
     public function index()
     {
         $categories = Category::all();

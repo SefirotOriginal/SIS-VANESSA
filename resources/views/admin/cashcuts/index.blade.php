@@ -10,9 +10,11 @@
     <div class="card shadow">
         <div class="card-body">
             <div class="row mt-4">
-                <a href="{{ route('cashcuts.create') }}" class="btn btn-primary mb-3">
-                    <i class="fas fa-plus"></i> Crear Corte de Caja
-                </a>
+                @can('cashcuts.create')
+                    <a href="{{ route('cashcuts.create') }}" class="btn btn-primary mb-3">
+                        <i class="fas fa-plus"></i> Crear Corte de Caja
+                    </a>
+                @endcan
 
                 <div class="table-responsive">
                     <table id="balanceTable" class="table table-striped text-center" style="width:100%">
@@ -37,21 +39,22 @@
                                     <td>{{ $cut->final_amount }}</td>
                                     <td>{{ $cut->diference }}</td>
                                     <td>
-                                        {{-- <a href="{{ route('laboratories.show', $laboratory) }}" class="btn btn-info btn-sm">
-                                    <i class="fas fa-eye"></i> Ver
-                                </a> --}}
-                                        <a href="{{ route('cashcuts.edit', $cut->id) }}" class="btn btn-warning btn-sm">
-                                            <i class="fas fa-edit"></i> Editar
-                                        </a>
-                                        <form action="{{ route('cashcuts.destroy', $cut->id) }}" method="POST" class="d-inline"
-                                            id="formEliminar{{ $cut->id }}">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="button" class="btn btn-danger btn-sm"
-                                                onclick="confirmarEliminacion({{ $cut->id }})">
-                                                <i class="fas fa-trash  "></i> Eliminar
-                                            </button>
-                                        </form>
+                                        @can('cashcuts.edit')
+                                            <a href="{{ route('cashcuts.edit', $cut->id) }}" class="btn btn-warning btn-sm">
+                                                <i class="fas fa-edit"></i> Editar
+                                            </a>
+                                        @endcan
+                                        @can('cashcuts.destroy')
+                                            <form action="{{ route('cashcuts.destroy', $cut->id) }}" method="POST"
+                                                class="d-inline" id="formEliminar{{ $cut->id }}">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="button" class="btn btn-danger btn-sm"
+                                                    onclick="confirmarEliminacion({{ $cut->id }})">
+                                                    <i class="fas fa-trash  "></i> Eliminar
+                                                </button>
+                                            </form>
+                                        @endcan
                                     </td>
                                 </tr>
                             @endforeach

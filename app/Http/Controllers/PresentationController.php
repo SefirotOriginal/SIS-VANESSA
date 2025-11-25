@@ -8,6 +8,13 @@ use Illuminate\Http\Request;
 
 class PresentationController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:presentation.index')->only('index');
+        $this->middleware('permission:presentation.create|presentation.store')->only(['create', 'store']);
+        $this->middleware('permission:presentation.edit|presentation.update')->only(['edit', 'update']);
+        $this->middleware('permission:presentation.destroy')->only('destroy');
+    }
     /**
      * Display a listing of the resource.
      */
