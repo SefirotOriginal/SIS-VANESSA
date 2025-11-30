@@ -33,6 +33,17 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
+                            <label class="form-label text-success">Total de Ventas (Ingresos)</label>
+                            <input type="text" class="form-control" value="${{ number_format($salesTotal, 2) }}" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-danger">Total de Compras (Retiros)</label>
+                            <input type="text" class="form-control text-danger fw-bold" value="-${{ number_format($purchasesTotal, 2) }}" readonly>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
                             <label for="startAmount" class="form-label">Monto inicial</label>
                             <input type="number" name="initial_amount" id="initial_amount" class="form-control"
                                 value="{{ $initialAmount }}" step="0.01" required readonly>
@@ -45,17 +56,17 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label for="realAmount" class="form-label">Monto real</label>
+                            <label for="realAmount" class="form-label">Monto esperado</label>
                             <input type="text" name="real_amount" id="real_amount" class="form-control" required
                                 value=" {{ $realAmount }}" readonly>
                         </div>
                         <div class="col-md-6">
-                            <label for="diference" class="form-label">Diferiencia</label>
-                            <input type="number" name="diference" id="diference" class="form-control" required>
+                            <label for="diference" class="form-label">Diferencia</label>
+                            <input type="number" name="diference" id="diference" class="form-control" step="0.01" readonly required>
                         </div>
                     </div>
                     <div class="d-flex justify-content-between mt-4">
-                        <a href="{{ route('laboratories.index') }}" class="btn btn-secondary">
+                        <a href="{{ route('cashcuts.index') }}" class="btn btn-secondary">
                             <i class="fas fa-arrow-left"></i> Cancelar
                         </a>
                         <button type="button" class="btn btn-primary" id="btnSave">
@@ -99,7 +110,6 @@
         });
     </script>
 
-    {{-- Script para calcular la diferiencia entre el monto real y el monto final --}}
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const realAmount = document.getElementById('real_amount');
@@ -109,16 +119,24 @@
             function calculateDifference() {
                 const real = parseFloat(realAmount.value.replace(/[^0-9.-]/g, '')) || 0;
                 const final = parseFloat(finalAmount.value) || 0;
-                const diff = real - final;
+                //const diff = real - final;
+                const diff = final - real; // Es más intuitivo ver números rojos (negativos) cuando falta dinero
                 diference.value = diff.toFixed(2);
+
+                // Cambia el color del texto si es negativo
+                if(diff < 0) {
+                    diference.style.color = 'red';
+                    diference.style.fontWeight = 'bold';
+                } else {
+                    diference.style.color = 'green';
+                }
             }
 
             finalAmount.addEventListener('input', calculateDifference);
-            calculateDifference(); // Calculate on load
+            calculateDifference();
         });
     </script>
 
-    {{-- Script para mostrar errores de validación del backend --}}
     <script>
         @if ($errors->any())
             Swal.fire({

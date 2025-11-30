@@ -91,4 +91,10 @@ class User extends Authenticatable
     public function role(){
         return $this->belongsTo(Role::class);
     }
+    
+    public function cashCuts()
+    {
+        return $this->hasMany(CashCuts::class, 'user_id');
+    }
+
 }

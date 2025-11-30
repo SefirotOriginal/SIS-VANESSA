@@ -10,6 +10,7 @@ use App\Models\PurchaseDetail;
 use App\Models\Provider;
 use App\Models\ProductPresentation;
 use App\Models\Batch;
+use App\Models\CashCuts;
 
 class PurchaseController extends Controller
 {
@@ -73,6 +74,16 @@ class PurchaseController extends Controller
                 'user_id'          => Auth::id(),
                 'provider_id'      => $request->provider_id,
             ]);
+
+            // Se busca el último corte de caja generado por este usuario
+            $currentCut = CashCuts::where('user_id', Auth::id())
+                            ->orderBy('created_at', 'desc')
+                            ->first();
+
+            // Si existe un corte, guardamos la relación
+            if ($currentCut) {
+                $purchase->cashCuts()->attach($currentCut->id);
+            }
 
             foreach ($request->items as $item) {
 

@@ -16,7 +16,7 @@ class Purchase extends Model
         'provider_id'
     ];
 
-    // Se relaciona cada compra con un proovedor, con sus detalles y el usuario
+    // Se relaciona cada compra con un proovedor con sus detalles y el usuario
     public function provider()
     {
         return $this->belongsTo(Provider::class, 'provider_id');
@@ -30,5 +30,15 @@ class Purchase extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function cashCuts()
+    {
+        return $this->belongsToMany(
+            CashCuts::class, 
+            'cash_cut_has_purchases', 
+            'purchase_id', 
+            'cash_cut_id'
+        );
     }
 }

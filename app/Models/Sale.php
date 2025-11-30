@@ -37,4 +37,14 @@ class Sale extends Model
     {
         return $this->hasMany(DetailSale::class, 'sale_id', 'id');
     }
+
+    public function cashCuts()
+    {
+        return $this->belongsToMany(
+            CashCuts::class,
+            'cash_cut_has_sales_has_users',
+            'sale_id',
+            'cash_cut_id'
+        );
+    }
 }

@@ -9,7 +9,6 @@
 @section('content')
     <div class="card shadow">
         <div class="card-body">
-            {{-- Editar corte de caja --}}
             @can('cashcuts.update')
                 <form id="formLabs" action="{{ route('cashcuts.update', $cashcut) }}" method="POST">
                     @csrf
@@ -33,6 +32,21 @@
                                 value="{{ $cashcut->end_time }}" required>
                         </div>
                     </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-success">Total de Ventas (Ingresos)</label>
+                            <input type="text" class="form-control" 
+                                value="${{ number_format($cashcut->sales->sum('amountTotal'), 2) }}" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-danger">Total de Compras (Retiros)</label>
+                            <input type="text" class="form-control text-danger" 
+                                value="-${{ number_format($cashcut->purchases->sum('amountTotal'), 2) }}" readonly>
+                        </div>
+                    </div>
+                    <hr>
+
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label for="startAmount" class="form-label">Monto inicial</label>
@@ -48,14 +62,14 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label for="realAmount" class="form-label">Monto real</label>
+                            <label for="realAmount" class="form-label">Monto esperado</label>
                             <input type="text" name="real_amount" id="real_amount" class="form-control" required
                                 value=" {{ $cashcut->real_amount }}" readonly>
                         </div>
                         <div class="col-md-6">
                             <label for="diference" class="form-label">Diferencia</label>
                             <input type="number" name="diference" id="diference" class="form-control"
-                                value="{{ $cashcut->diference }}" required readonly>
+                                value="{{ $cashcut->diference }}" step="0.01" required readonly>
                         </div>
                     </div>
                     <div class="d-flex justify-content-between mt-4">
@@ -103,7 +117,6 @@
         });
     </script>
 
-    {{-- Script para calcular la diferencia entre el monto real y el monto final --}}
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const realAmount = document.getElementById('real_amount');
@@ -113,12 +126,21 @@
             function calculateDifference() {
                 const real = parseFloat(realAmount.value.replace(/[^0-9.-]/g, '')) || 0;
                 const final = parseFloat(finalAmount.value) || 0;
-                const diff = real - final;
-                diference.value = diff.toFixed(2); // Make it readonly in the input
+                //const diff = real - final;
+                const diff = final - real; // Es más intuitivo ver números rojos (negativos) cuando falta dinero
+                diference.value = diff.toFixed(2);
+
+                // Cambia el color del texto si es negativo
+                if(diff < 0) {
+                    diference.style.color = 'red';
+                    diference.style.fontWeight = 'bold';
+                } else {
+                    diference.style.color = 'green';
+                }
             }
 
             finalAmount.addEventListener('input', calculateDifference);
-            calculateDifference(); // Calculate on load
+            calculateDifference();
         });
     </script>
 

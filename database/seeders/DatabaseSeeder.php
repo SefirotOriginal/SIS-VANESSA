@@ -35,6 +35,7 @@ class DatabaseSeeder extends Seeder
             // Add other seeders here
             AssignSuperUserToTestSeeder::class,
             AssignPermissionsToRolesSeeder::class,
+            ProviderSeeder::class,
         ]);
     }
 }

@@ -2,17 +2,19 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+//use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 use App\Models\CashCuts;
 use App\Models\Sale;
 use App\Models\User;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class PivotCashCuts extends Model
+class PivotCashCuts extends Pivot
 {
-    //
     use SoftDeletes;
     protected $table = 'cash_cut_has_sales_has_users';
+    public $incrementing = true;
+    
     protected $fillable = [
         'cash_cut_id',
         'sale_id',

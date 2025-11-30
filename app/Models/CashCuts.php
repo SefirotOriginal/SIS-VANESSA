@@ -23,4 +23,27 @@ class CashCuts extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function sales()
+    {
+        return $this->belongsToMany(
+            Sale::class,
+            'cash_cut_has_sales_has_users',
+            'cash_cut_id',
+            'sale_id'
+        )
+        ->using(PivotCashCuts::class)
+        ->withPivot('user_id')
+        ->withTimestamps();
+    }
+
+    public function purchases()
+    {
+        return $this->belongsToMany(
+            Purchase::class, 
+            'cash_cut_has_purchases',
+            'cash_cut_id', 
+            'purchase_id'
+        )->withTimestamps();
+    }
 }

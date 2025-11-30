@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CashCuts;
 use App\Models\PivotCashCuts;
 use App\Models\Sale;
+use App\Models\Purchase;
 
 use Illuminate\Http\Request;
 
@@ -18,14 +19,16 @@ class CashCutsController extends Controller
         $this->middleware('permission:cashcuts.edit|cashcuts.update')->only(['edit', 'update']);
         $this->middleware('permission:cashcuts.destroy')->only('destroy');
     }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
-        $cashCuts = CashCuts::with('user')->get();
-        $sales = Sale::with('user')->get();
+        // Esto precarga todas las ventas y compras asociadas a cada corte
+        $cashCuts = CashCuts::with(['user', 'sales', 'purchases'])->get();
+        $sales = Sale::with('user')->get(); 
+        
         return view('admin.cashcuts.index', compact('cashCuts', 'sales'));
     }
 
@@ -40,42 +43,47 @@ class CashCutsController extends Controller
             return redirect()->route('login')->with('error', 'Debes iniciar sesión para acceder a esta página.');
         }
 
-        // Obtener último corte de caja del mismo usuario (ajusta si quieres global)
+        // Se obtiene el último corte de caja
         $lastCashCut = CashCuts::where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
             ->first();
 
-
-        // Determinar la hora de inicio y el monto inicial basado en si existe un corte previo.
-        $startTime = session('login_time', now()); // Por defecto, la hora de inicio de sesión.
+        // Se determina hora de inicio y monto inicial
+        $startTime = session('login_time', now()); 
         $initialAmount = 0;
 
         if ($lastCashCut && isset($lastCashCut->final_amount)) {
-            // Si el monto final del último corte fue 0, significa que no hubo ventas y el fondo se mantiene.
-            // Por lo tanto, el nuevo monto inicial debe ser el monto inicial del corte anterior.
             if ((float) $lastCashCut->final_amount === 0.0) {
                 $initialAmount = (float) $lastCashCut->initial_amount;
             } else {
                 $initialAmount = (float) $lastCashCut->final_amount;
             }
-            // Y la hora de inicio para el nuevo cálculo es la hora en que terminó el corte anterior.
             $startTime = $lastCashCut->end_time;
         }
 
         $endTime = now();
 
-        // Calcular monto real de ventas entre startTime y endTime
-        $realAmount = (float) Sale::where('user_id', $user->id)
+        // Calcular Ventas
+        $salesTotal = (float) Sale::where('user_id', $user->id)
             ->whereBetween('created_at', [$startTime, $endTime])
             ->sum('amountTotal');
 
-        // Devolver la vista con las variables ya definidas
+        // Calcular Compras
+        $purchasesTotal = (float) Purchase::where('user_id', $user->id)
+            ->whereBetween('created_at', [$startTime, $endTime])
+            ->sum('amountTotal');
+
+        // Calcular Monto esperado (Inicial + Ventas - Compras)
+        $realAmount = $initialAmount + $salesTotal - $purchasesTotal;
+
         return view('admin.cashcuts.create', compact(
             'user',
             'startTime',
             'endTime',
             'realAmount',
-            'initialAmount'
+            'initialAmount',
+            'salesTotal',
+            'purchasesTotal'
         ));
     }
 
@@ -84,32 +92,36 @@ class CashCutsController extends Controller
      */
     public function store(Request $request)
     {
-        //generar corte de caja, con el dia y hora de inicio y fin, el monto inicial, monto real, monto final y la diferencia. ademas de relacionarlo con el usuario que lo creo.
-        // la hora inicial se obtendra al momento de iniciar secion el usuario, y la hora final al momento de crear el corte de caja, intentar cerrar secion (salir del sistema, etc).
-        // Esto taambien realacionara los datos de la tabla pivote cash_cut_has_sales_has_users
-
         try {
             $cashCut = CashCuts::create([
                 'user_id' => auth()->user()->id,
-                'start_time' => session('login_time', now()), // Usar la hora de inicio de sesion de la sesión
-                'end_time' => now(),
+                'start_time' => session('login_time', now()), 
+                'end_time' => now(), // Este 'now()' define el cierre exacto
                 'initial_amount' => $request->input('initial_amount'),
                 'real_amount' => $request->input('real_amount'),
                 'final_amount' => $request->input('final_amount'),
                 'diference' => $request->input('diference'),
             ]);
-            // dd($cashCut);
 
-            // Relacionar ventas con el corte de caja en la tabla pivote
             $sales = Sale::where('user_id', auth()->user()->id)
                 ->whereBetween('created_at', [$cashCut->start_time, $cashCut->end_time])
                 ->get();
+
             foreach ($sales as $sale) {
                 PivotCashCuts::create([
                     'cash_cut_id' => $cashCut->id,
                     'sale_id' => $sale->id,
                     'user_id' => auth()->user()->id,
                 ]);
+            }
+
+            // Se buscan las compras hechas en este rango de tiempo
+            $purchases = Purchase::where('user_id', auth()->user()->id)
+                ->whereBetween('created_at', [$cashCut->start_time, $cashCut->end_time])
+                ->get();
+            
+            if ($purchases->count() > 0) {
+                $cashCut->purchases()->attach($purchases);
             }
 
             return redirect()->route('cashcuts.index')->with('success', 'Corte de caja creado exitosamente.');
@@ -153,10 +165,10 @@ class CashCutsController extends Controller
             ]);
 
             if ($request->has('sales')) {
-                // Eliminar relaciones existentes
+                // Se eliminan las relaciones existentes
                 PivotCashCuts::where('cash_cut_id', $cashcut->id)->delete();
 
-                // Crear nuevas relaciones
+                // Se crean nuevas relaciones
                 foreach ($request->input('sales') as $saleId) {
                     PivotCashCuts::updateOrCreate([
                         'cash_cut_id' => $cashcut->id,
