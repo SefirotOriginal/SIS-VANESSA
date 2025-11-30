@@ -16,6 +16,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\BatchController;
 use App\Http\Controllers\CashCutsController;
 use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\Api\SyncController;
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
@@ -162,3 +163,7 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 Route::get('error/permission', function () {
     return view('errors.403');
 })->name('error.permission');
+
+// Rutas de sincronización (usadas por instalaciones locales <-> servidor)
+Route::post('sync/push/purchase', [SyncController::class, 'pushPurchase']);
+Route::post('sync/pull/updates', [SyncController::class, 'pullUpdates']);

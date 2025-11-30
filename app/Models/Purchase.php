@@ -3,16 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Jobs\PushPurchaseToServer;
 
 class Purchase extends Model
 {
     protected $table = 'purchases';
 
     protected $fillable = [
-        'reference_number', 
-        'receipt_type', 
-        'amountTotal', 
-        'user_id', 
+        'reference_number',
+        'receipt_type',
+        'amountTotal',
+        'user_id',
         'provider_id'
     ];
 
@@ -35,10 +36,21 @@ class Purchase extends Model
     public function cashCuts()
     {
         return $this->belongsToMany(
-            CashCuts::class, 
-            'cash_cut_has_purchases', 
-            'purchase_id', 
+            CashCuts::class,
+            'cash_cut_has_purchases',
+            'purchase_id',
             'cash_cut_id'
         );
+    }
+
+    protected static function booted()
+    {
+        static::created(function ($purchase) {
+            try {
+                PushPurchaseToServer::dispatch($purchase);
+            } catch (\Exception $e) {
+                // no romper el flujo de la app si falla el dispatch
+            }
+        });
     }
 }
