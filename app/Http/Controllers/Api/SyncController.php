@@ -23,6 +23,13 @@ class SyncController extends Controller
         $data = $request->all();
 
         // Payload esperado: ['purchase' => [...], 'details' => [...]]
+        // Compatibilidad: mapear claves antiguas a las actuales (p.ej. `total` -> `amountTotal`)
+        if (isset($data['purchase']) && is_array($data['purchase'])) {
+            if (isset($data['purchase']['total']) && !isset($data['purchase']['amountTotal'])) {
+                $data['purchase']['amountTotal'] = $data['purchase']['total'];
+                unset($data['purchase']['total']);
+            }
+        }
         try {
             DB::beginTransaction();
 
