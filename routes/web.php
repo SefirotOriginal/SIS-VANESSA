@@ -20,7 +20,10 @@ use App\Http\Controllers\Api\SyncController;
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
-    return redirect()->route('sales.create');
+    if (request()->getPort() == 9001) {
+        return redirect()->route('login');
+    }
+    return redirect()->route('login');
 });
 
 //Sección de Ventas
