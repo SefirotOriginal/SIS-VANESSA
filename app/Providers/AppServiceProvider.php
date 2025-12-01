@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Routing\Router;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as FrameworkVerifyCsrf;
 use Illuminate\Contracts\Debug\ExceptionHandler as ExceptionHandlerContract;
 use Illuminate\Auth\AuthenticationException;
 use Spatie\Permission\Exceptions\UnauthorizedException;
@@ -31,6 +32,12 @@ class AppServiceProvider extends ServiceProvider
 
         // Registrar handlers para excepciones de autenticación y permisos
         $handler = $this->app->make(ExceptionHandlerContract::class);
+
+        // Excluir rutas de sincronización del chequeo CSRF a nivel de framework
+        // Esto permite que instalaciones locales realicen POST a /sync/* sin token CSRF.
+        if (class_exists(FrameworkVerifyCsrf::class)) {
+            FrameworkVerifyCsrf::except(['sync/*']);
+        }
 
         // Cuando un usuario no tiene permiso (Spatie UnauthorizedException)
         if (method_exists($handler, 'renderable')) {
