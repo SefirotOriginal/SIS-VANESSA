@@ -23,11 +23,33 @@ class SyncController extends Controller
         $data = $request->all();
 
         // Payload esperado: ['purchase' => [...], 'details' => [...]]
-        // Compatibilidad: mapear claves antiguas a las actuales (p.ej. `total` -> `amountTotal`)
+        // Compatibilidad: mapear claves antiguas a las actuales (p.ej. `total` -> `amountTotal`) y asegurar campos requeridos
         if (isset($data['purchase']) && is_array($data['purchase'])) {
+            // total -> amountTotal
             if (isset($data['purchase']['total']) && !isset($data['purchase']['amountTotal'])) {
                 $data['purchase']['amountTotal'] = $data['purchase']['total'];
                 unset($data['purchase']['total']);
+            }
+
+            // Asegurar `receipt_type` (columna no tiene default en la BD)
+            if (!isset($data['purchase']['receipt_type'])) {
+                $data['purchase']['receipt_type'] = '';
+            }
+
+            // Asegurar `provider_id` como nulo si no existe
+            if (!array_key_exists('provider_id', $data['purchase'])) {
+                $data['purchase']['provider_id'] = null;
+            }
+
+            // Si reference_number viene con prefijo tipo REF-..., intentar sanearlo a entero cuando la BD espera integer
+            if (isset($data['purchase']['reference_number'])) {
+                // si es string y contiene dígitos, extraer dígitos
+                if (is_string($data['purchase']['reference_number'])) {
+                    preg_match('/(\d+)/', $data['purchase']['reference_number'], $m);
+                    if (!empty($m[1])) {
+                        $data['purchase']['reference_number'] = (int) $m[1];
+                    }
+                }
             }
         }
         try {
