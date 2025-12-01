@@ -26,6 +26,9 @@ class PushPurchaseToServer implements ShouldQueue
     {
         $payload = [
             'purchase' => $this->purchase->toArray(),
+            'details' => $this->purchase->details()->get()->map(function ($d) {
+                return $d->toArray();
+            })->toArray(),
         ];
 
         $res = $sync->pushPurchase($payload);

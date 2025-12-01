@@ -170,3 +170,4 @@ Route::get('error/permission', function () {
 // Rutas de sincronización (usadas por instalaciones locales <-> servidor)
 Route::post('sync/push/purchase', [SyncController::class, 'pushPurchase']);
 Route::post('sync/pull/updates', [SyncController::class, 'pullUpdates']);
+Route::get('sync/health', [SyncController::class, 'health']);

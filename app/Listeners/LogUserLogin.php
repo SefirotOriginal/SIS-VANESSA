@@ -2,11 +2,8 @@
 
 namespace App\Listeners;
 
-use IlluminateAuthEventsLogin;
 use Illuminate\Auth\Events\Login;
-
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Jobs\PullUpdatesJob;
 
 class LogUserLogin
 {
@@ -25,11 +22,18 @@ class LogUserLogin
     public function handle(Login $event): void
     {
         //
-         $event->user->update([
+        $event->user->update([
             'last_login_at' => now(),
         ]);
 
         // Store login time in session for cash cut usage
         session(['login_time' => now()]);
+
+        try {
+            // Enviar job para traer actualizaciones del servidor (no bloquear el login)
+            PullUpdatesJob::dispatch();
+        } catch (\Exception $e) {
+            // no bloquear si falla
+        }
     }
 }

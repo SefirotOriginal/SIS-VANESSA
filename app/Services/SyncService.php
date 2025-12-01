@@ -46,6 +46,26 @@ class SyncService
         }
     }
 
+    public function health(): array
+    {
+        $url = rtrim($this->baseUrl, '/') . '/sync/health';
+
+        try {
+            $resp = Http::timeout($this->timeout)
+                ->withHeaders($this->headers())
+                ->get($url);
+
+            return [
+                'ok' => $resp->ok(),
+                'status' => $resp->status(),
+                'body' => $resp->json(),
+            ];
+        } catch (\Exception $e) {
+            Log::error('SyncService health error: ' . $e->getMessage());
+            return ['ok' => false, 'error' => $e->getMessage()];
+        }
+    }
+
     public function pullUpdates(array $options = []): array
     {
         $url = rtrim($this->baseUrl, '/') . '/sync/pull/updates';
