@@ -168,6 +168,9 @@ Route::get('error/permission', function () {
 })->name('error.permission');
 
 // Rutas de sincronización (usadas por instalaciones locales <-> servidor)
-Route::post('sync/push/purchase', [SyncController::class, 'pushPurchase']);
-Route::post('sync/pull/updates', [SyncController::class, 'pullUpdates']);
-Route::get('sync/health', [SyncController::class, 'health']);
+// Se sirven con el middleware `api` para evitar chequeo CSRF y usar un endpoint stateless.
+Route::middleware('api')->group(function () {
+    Route::post('sync/push/purchase', [SyncController::class, 'pushPurchase']);
+    Route::post('sync/pull/updates', [SyncController::class, 'pullUpdates']);
+    Route::get('sync/health', [SyncController::class, 'health']);
+});
