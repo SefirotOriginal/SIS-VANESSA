@@ -30,7 +30,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             RolesAndPermissions::class,
-            ProductsSeeder::class,
+            // ProductsSeeder::class,
 
             // Add other seeders here
             AssignSuperUserToTestSeeder::class,
