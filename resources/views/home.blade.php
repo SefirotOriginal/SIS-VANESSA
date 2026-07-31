@@ -31,7 +31,7 @@
                 </div>
                 <div class="col-md-2">
                     <label for="codigo" class="form-label">Código</label>
-                    <input type="text" class="form-control" id="codigo" placeholder="Código" readonly>
+                    <input type="text" class="form-control" id="codigo" placeholder="Código de barras" autocomplete="off">
                 </div>
                 <div class="col-md-2">
                     <label for="precio" class="form-label">Precio</label>
