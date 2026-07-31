@@ -37,7 +37,17 @@ class PurchaseController extends Controller
     public function create()
     {
         $providers = Provider::all();
-        $products = ProductPresentation::with(['product', 'presentation', 'batches'])->get();
+        $products = ProductPresentation::with([
+            'product' => function ($query) {
+                $query->withTrashed();
+            },
+            'presentation',
+            'batches'
+        ])
+            ->whereHas('product', function ($query) {
+                $query->whereNull('deleted_at');
+            })
+            ->get();
 
         return view('purchases.create', compact('providers', 'products'));
     }
@@ -46,17 +56,17 @@ class PurchaseController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'provider_id'      => 'required|exists:providers,id',
+            'provider_id' => 'required|exists:providers,id',
             'reference_number' => 'required|unique:purchases,reference_number',
-            'receipt_type'     => 'required',
-            'items'            => 'required|array|min:1', // Debe haber al menos 1 producto
+            'receipt_type' => 'required',
+            'items' => 'required|array|min:1', // Debe haber al menos 1 producto
 
             'items.*.product_presentation_id' => 'required|exists:product_presentations,id',
-            'items.*.quantity'                => 'required|integer|min:1',
-            'items.*.purchase_price'          => 'required|numeric|min:0',
-            'items.*.sale_price'              => 'nullable|numeric|min:0', // Opcional actualizar precio venta
-            'items.*.batch_number'            => 'required|string',
-            'items.*.expiration_date'         => 'required|date',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.purchase_price' => 'required|numeric|min:0',
+            'items.*.sale_price' => 'nullable|numeric|min:0', // Opcional actualizar precio venta
+            'items.*.batch_number' => 'required|string',
+            'items.*.expiration_date' => 'required|date',
         ]);
 
         DB::beginTransaction();
@@ -69,16 +79,16 @@ class PurchaseController extends Controller
 
             $purchase = Purchase::create([
                 'reference_number' => $request->reference_number,
-                'receipt_type'     => $request->receipt_type,
-                'amountTotal'      => $totalCompra,
-                'user_id'          => Auth::id(),
-                'provider_id'      => $request->provider_id,
+                'receipt_type' => $request->receipt_type,
+                'amountTotal' => $totalCompra,
+                'user_id' => Auth::id(),
+                'provider_id' => $request->provider_id,
             ]);
 
             // Se busca el último corte de caja generado por este usuario
             $currentCut = CashCuts::where('user_id', Auth::id())
-                            ->orderBy('created_at', 'desc')
-                            ->first();
+                ->orderBy('created_at', 'desc')
+                ->first();
 
             // Si existe un corte, guardamos la relación
             if ($currentCut) {
@@ -102,12 +112,12 @@ class PurchaseController extends Controller
                     // En caso de no existir, se crea el nuevo lote
                     $batch = Batch::create([
                         'product_presentation_id' => $item['product_presentation_id'],
-                        'batch_number'            => $item['batch_number'],
-                        'creation_date'           => now(), // Fecha registro
-                        'expiration_date'         => $item['expiration_date'],
-                        'stock'                   => $item['quantity'],
-                        'min_stock'               => 5,  // Valor por defecto
-                        'max_stock'               => 100, // Valor por defecto
+                        'batch_number' => $item['batch_number'],
+                        'creation_date' => now(), // Fecha registro
+                        'expiration_date' => $item['expiration_date'],
+                        'stock' => $item['quantity'],
+                        'min_stock' => 5,  // Valor por defecto
+                        'max_stock' => 100, // Valor por defecto
                     ]);
                 }
 
@@ -121,14 +131,14 @@ class PurchaseController extends Controller
                 $prodPresentation->save();
 
                 PurchaseDetail::create([
-                    'purchase_id'             => $purchase->id,
+                    'purchase_id' => $purchase->id,
                     'product_presentation_id' => $item['product_presentation_id'],
-                    'batch_id'                => $batch->id,
-                    'product_id'              => $prodPresentation->product_id,
-                    'purchase_price'          => $item['purchase_price'],
-                    'sale_price'              => $prodPresentation->sale_price,
-                    'stock'                   => $item['quantity'],
-                    'amount_total'            => $item['quantity'] * $item['purchase_price'],
+                    'batch_id' => $batch->id,
+                    'product_id' => $prodPresentation->product_id,
+                    'purchase_price' => $item['purchase_price'],
+                    'sale_price' => $prodPresentation->sale_price,
+                    'stock' => $item['quantity'],
+                    'amount_total' => $item['quantity'] * $item['purchase_price'],
                 ]);
             }
 
@@ -143,15 +153,15 @@ class PurchaseController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'provider_id'      => 'required|exists:providers,id',
+            'provider_id' => 'required|exists:providers,id',
             'reference_number' => 'required|unique:purchases,reference_number,' . $id,
-            'receipt_type'     => 'required',
-            'items'            => 'required|array|min:1',
+            'receipt_type' => 'required',
+            'items' => 'required|array|min:1',
             'items.*.product_presentation_id' => 'required|exists:product_presentations,id',
-            'items.*.quantity'                => 'required|integer|min:1',
-            'items.*.purchase_price'          => 'required|numeric|min:0',
-            'items.*.batch_number'            => 'required|string',
-            'items.*.expiration_date'         => 'required|date',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.purchase_price' => 'required|numeric|min:0',
+            'items.*.batch_number' => 'required|string',
+            'items.*.expiration_date' => 'required|date',
         ]);
 
         DB::beginTransaction();
@@ -172,7 +182,8 @@ class PurchaseController extends Controller
                     $batch = Batch::find($detailToDelete->batch_id);
                     if ($batch) {
                         $batch->stock -= $detailToDelete->stock;
-                        if ($batch->stock < 0) $batch->stock = 0;
+                        if ($batch->stock < 0)
+                            $batch->stock = 0;
                         $batch->save();
                     }
                 }
@@ -197,12 +208,12 @@ class PurchaseController extends Controller
                 if (!$batch) {
                     $batch = Batch::create([
                         'product_presentation_id' => $item['product_presentation_id'],
-                        'batch_number'            => $item['batch_number'],
-                        'creation_date'           => now(),
-                        'expiration_date'         => $item['expiration_date'],
-                        'stock'                   => 0,
-                        'min_stock'               => 5,
-                        'max_stock'               => 100,
+                        'batch_number' => $item['batch_number'],
+                        'creation_date' => now(),
+                        'expiration_date' => $item['expiration_date'],
+                        'stock' => 0,
+                        'min_stock' => 5,
+                        'max_stock' => 100,
                     ]);
                 }
 
@@ -214,7 +225,8 @@ class PurchaseController extends Controller
                         $oldBatch = Batch::find($detail->batch_id);
                         if ($oldBatch) {
                             $oldBatch->stock -= $detail->stock;
-                            if ($oldBatch->stock < 0) $oldBatch->stock = 0;
+                            if ($oldBatch->stock < 0)
+                                $oldBatch->stock = 0;
                             $oldBatch->save();
                         }
                     }
@@ -227,10 +239,10 @@ class PurchaseController extends Controller
 
                     $detail->update([
                         'product_presentation_id' => $item['product_presentation_id'],
-                        'batch_id'                => $batch->id,
-                        'purchase_price'          => $item['purchase_price'],
-                        'stock'                   => $item['quantity'],
-                        'amount_total'            => $subtotal,
+                        'batch_id' => $batch->id,
+                        'purchase_price' => $item['purchase_price'],
+                        'stock' => $item['quantity'],
+                        'amount_total' => $subtotal,
                     ]);
                 } else {
                     $batch = $batch->fresh();
@@ -239,14 +251,14 @@ class PurchaseController extends Controller
                     $batch->save();
 
                     PurchaseDetail::create([
-                        'purchase_id'             => $purchase->id,
+                        'purchase_id' => $purchase->id,
                         'product_presentation_id' => $item['product_presentation_id'],
-                        'batch_id'                => $batch->id,
-                        'product_id'              => $prodPresentation->product_id,
-                        'purchase_price'          => $item['purchase_price'],
-                        'sale_price'              => $prodPresentation->sale_price,
-                        'stock'                   => $item['quantity'],
-                        'amount_total'            => $subtotal,
+                        'batch_id' => $batch->id,
+                        'product_id' => $prodPresentation->product_id,
+                        'purchase_price' => $item['purchase_price'],
+                        'sale_price' => $prodPresentation->sale_price,
+                        'stock' => $item['quantity'],
+                        'amount_total' => $subtotal,
                     ]);
                 }
 
@@ -257,9 +269,9 @@ class PurchaseController extends Controller
 
             $purchase->update([
                 'reference_number' => $request->reference_number,
-                'receipt_type'     => $request->receipt_type,
-                'provider_id'      => $request->provider_id,
-                'amountTotal'      => $nuevoTotalGlobal,
+                'receipt_type' => $request->receipt_type,
+                'provider_id' => $request->provider_id,
+                'amountTotal' => $nuevoTotalGlobal,
             ]);
 
             DB::commit();

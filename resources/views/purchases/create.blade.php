@@ -3,175 +3,180 @@
 @section('title', 'Registrar Compra')
 
 @section('content_header')
-    <h1><b>Registro de compra</b></h1>
+<h1><b>Registro de compra</b></h1>
 @stop
 
 @section('content')
-    <div class="card shadow">
-        <div class="card-body">
-            <form id="formCompra" action="{{ route('purchases.store') }}" method="POST">
-                @csrf
+<div class="card shadow">
+    <div class="card-body">
+        <form id="formCompra" action="{{ route('purchases.store') }}" method="POST">
+            @csrf
 
-                {{-- Datos generales de la compra --}}
-                <div class="row g-3 mb-4">
-                    <div class="col-md-4">
-                        <label for="provider_id" class="form-label">Proveedor</label>
-                        <select name="provider_id" id="provider_id" class="form-control" required>
-                            <option value="" selected disabled>-- Seleccionar proveedor --</option>
-                            @foreach ($providers as $provider)
-                                <option value="{{ $provider->id }}">{{ $provider->companyName }}</option>
+            {{-- Datos generales de la compra --}}
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <label for="provider_id" class="form-label">Proveedor</label>
+                    <select name="provider_id" id="provider_id" class="form-control" required>
+                        <option value="" selected disabled>-- Seleccionar proveedor --</option>
+                        @foreach ($providers as $provider)
+                        <option value="{{ $provider->id }}">{{ $provider->companyName }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="reference_number" class="form-label">N° Referencia / Factura</label>
+                    <input type="number" name="reference_number" id="reference_number" class="form-control"
+                        placeholder="Ej. 998822" required>
+                </div>
+                <div class="col-md-4">
+                    <label for="receipt_type" class="form-label">Tipo de Recibo</label>
+                    <select name="receipt_type" id="receipt_type" class="form-control">
+                        <option value="Factura">Factura</option>
+                        <option value="Nota">Nota de Remisión</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+                </div>
+            </div>
+
+            <hr>
+
+            {{-- Datos de productos de la compra --}}
+            <div class="p-3 mb-3 rounded" style="background-color: #f8f9fa; border: 1px solid #dee2e6;">
+                <div class="row g-3 align-items-end">
+                    {{-- Producto --}}
+                    <div class="col-md-3">
+                        <label class="form-label small">Producto</label>
+                        <select id="productSelect" class="form-control" style="width: 100%">
+                            <option value="">-- Buscar producto --</option>
+                            @foreach ($products as $item)
+                            @php
+                            $productName = optional($item->product)->name ?? 'Producto eliminado';
+                            $presentationName = optional($item->presentation)->name ?? 'Sin presentación';
+                            @endphp
+                            <option value="{{ $item->id }}" data-name="{{ $productName }} ({{ $presentationName }})"
+                                data-cost="{{ $item->purchase_price }}" data-batches='@json($item->batches)'>
+                                {{ $productName }} ({{ $presentationName }})
+                            </option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-4">
-                        <label for="reference_number" class="form-label">N° Referencia / Factura</label>
-                        <input type="number" name="reference_number" id="reference_number" class="form-control"
-                            placeholder="Ej. 998822" required>
+
+                    {{-- Lote con Datalist --}}
+                    <div class="col-md-2">
+                        <label class="form-label small">Lote</label>
+                        <input type="text" id="batchInput" list="batchList" class="form-control" placeholder="Lote"
+                            autocomplete="off">
+                        <datalist id="batchList"></datalist>
                     </div>
-                    <div class="col-md-4">
-                        <label for="receipt_type" class="form-label">Tipo de Recibo</label>
-                        <select name="receipt_type" id="receipt_type" class="form-control">
-                            <option value="Factura">Factura</option>
-                            <option value="Nota">Nota de Remisión</option>
-                            <option value="Otro">Otro</option>
-                        </select>
+
+                    <div class="col-md-2">
+                        <label class="form-label small">Caducidad</label>
+                        <input type="date" id="expirationInput" class="form-control">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small">Costo ($)</label>
+                        <input type="number" id="costInput" class="form-control" placeholder="0.00" step="0.01" min="0">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small">Cantidad</label>
+                        <input type="number" id="qtyInput" class="form-control" value="1" min="1">
+                    </div>
+                    <div class="col-md-1">
+                        <button type="button" class="btn btn-primary w-100" id="btnAddRow">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Tabla de productos y Totales --}}
+            <div class="row mt-4">
+                <div class="col-md-9">
+                    <div class="table-responsive">
+                        <table id="purchaseTable" class="table table-striped text-center vertical-align-middle"
+                            style="width:100%">
+                            <thead class="custom-header">
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Lote</th>
+                                    <th>Caducidad</th>
+                                    <th>Costo</th>
+                                    <th style="min-width: 100px;">Cantidad</th>
+                                    <th>Subtotal</th>
+                                    <th style="min-width: 140px;">Opciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detalleCompra">
+                                {{-- DataTables llenará esto --}}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
-                <hr>
-
-                {{-- Datos de productos de la compra --}}
-                <div class="p-3 mb-3 rounded" style="background-color: #f8f9fa; border: 1px solid #dee2e6;">
-                    <div class="row g-3 align-items-end">
-                        {{-- Producto --}}
-                        <div class="col-md-3">
-                            <label class="form-label small">Producto</label>
-                            <select id="productSelect" class="form-control">
-                                <option value="">-- Buscar producto --</option>
-                                @foreach ($products as $item)
-                                    <option value="{{ $item->id }}"
-                                        data-name="{{ $item->product->name }} ({{ $item->presentation->name }})"
-                                        {{-- Datos para automatización --}} data-cost="{{ $item->purchase_price }}"
-                                        data-batches='@json($item->batches)'>
-                                        {{ $item->product->name }} ({{ $item->presentation->name }})
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        {{-- Lote con Datalist --}}
-                        <div class="col-md-2">
-                            <label class="form-label small">Lote</label>
-                            <input type="text" id="batchInput" list="batchList" class="form-control" placeholder="Lote"
-                                autocomplete="off">
-                            <datalist id="batchList"></datalist>
-                        </div>
-
-                        <div class="col-md-2">
-                            <label class="form-label small">Caducidad</label>
-                            <input type="date" id="expirationInput" class="form-control">
-                        </div>
-                        <div class="col-md-2">
-                            <label class="form-label small">Costo ($)</label>
-                            <input type="number" id="costInput" class="form-control" placeholder="0.00" step="0.01"
-                                min="0">
-                        </div>
-                        <div class="col-md-2">
-                            <label class="form-label small">Cantidad</label>
-                            <input type="number" id="qtyInput" class="form-control" value="1" min="1">
-                        </div>
-                        <div class="col-md-1">
-                            <button type="button" class="btn btn-primary w-100" id="btnAddRow">
-                                <i class="fas fa-plus"></i>
+                <div class="col-md-3">
+                    <div class="card border-info">
+                        <div class="card-body">
+                            <h5>Total: <strong id="grandTotal" class="text-success">$0.00</strong></h5>
+                            <input type="hidden" id="totalHidden" value="0">
+                            @can('purchase.create')
+                            <button type="button" class="btn btn-success mt-4 w-100" id="btnSave">
+                                <i class="fas fa-check"></i> Guardar Compra
                             </button>
+                            @endcan
                         </div>
                     </div>
                 </div>
-
-                {{-- Tabla de productos y Totales --}}
-                <div class="row mt-4">
-                    <div class="col-md-9">
-                        <div class="table-responsive">
-                            <table id="purchaseTable" class="table table-striped text-center vertical-align-middle"
-                                style="width:100%">
-                                <thead class="custom-header">
-                                    <tr>
-                                        <th>Producto</th>
-                                        <th>Lote</th>
-                                        <th>Caducidad</th>
-                                        <th>Costo</th>
-                                        <th style="min-width: 100px;">Cantidad</th>
-                                        <th>Subtotal</th>
-                                        <th style="min-width: 140px;">Opciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="detalleCompra">
-                                    {{-- DataTables llenará esto --}}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="col-md-3">
-                        <div class="card border-info">
-                            <div class="card-body">
-                                <h5>Total: <strong id="grandTotal" class="text-success">$0.00</strong></h5>
-                                <input type="hidden" id="totalHidden" value="0">
-                                @can('purchase.create')
-                                    <button type="button" class="btn btn-success mt-4 w-100" id="btnSave">
-                                        <i class="fas fa-check"></i> Guardar Compra
-                                    </button>
-                                @endcan
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
+</div>
 @stop
 
 @section('css')
-    <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.css">
-    <style>
-        .content-wrapper {
-            background-color: #f1f1f1;
-        }
+<link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
+<link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.1.1/dist/select2-bootstrap-5-theme.min.css">
+<style>
+    .content-wrapper {
+        background-color: #f1f1f1;
+    }
 
-        .card-body {
-            background-color: #ffffff;
-        }
+    .card-body {
+        background-color: #ffffff;
+    }
 
-        .custom-header {
-            background-color: #0077B6;
-            color: white;
-        }
+    .custom-header {
+        background-color: #0077B6;
+        color: white;
+    }
 
-        .custom-header th {
-            white-space: nowrap;
-        }
+    .custom-header th {
+        white-space: nowrap;
+    }
 
-        table.dataTable tbody td {
-            vertical-align: middle;
-        }
+    table.dataTable tbody td {
+        vertical-align: middle;
+    }
 
-        .btn-group-options {
-            display: flex;
-            justify-content: center;
-            gap: 5px;
-        }
-    </style>
+    .btn-group-options {
+        display: flex;
+        justify-content: center;
+        gap: 5px;
+    }
+</style>
 @stop
 
 @section('js')
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.datatables.net/2.2.2/js/dataTables.js"></script>
-    <script src="https://cdn.datatables.net/2.2.2/js/dataTables.bootstrap5.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/2.2.2/js/dataTables.js"></script>
+<script src="https://cdn.datatables.net/2.2.2/js/dataTables.bootstrap5.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-    <script>
-        var purchaseTable;
+<script>
+    var purchaseTable;
         var currentBatches = []; // Almacén temporal de lotes del producto actual
 
         $(document).ready(function() {
@@ -183,6 +188,13 @@
                 searching: false,
                 info: false,
                 ordering: false
+            });
+
+            $('#productSelect').select2({
+                placeholder: '-- Buscar producto --',
+                allowClear: true,
+                width: '100%',
+                theme: 'bootstrap-5'
             });
 
             // Se reconoce cuando se actualiza el producto seleccionado
@@ -356,10 +368,10 @@
                 $('#totalHidden').val(total);
             }
         });
-    </script>
+</script>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
             const form = document.getElementById('formCompra');
             const btnSave = document.getElementById('btnSave');
 
@@ -425,10 +437,10 @@
                 }
             }
         });
-    </script>
+</script>
 
-    <script>
-        @if ($errors->any())
+<script>
+    @if ($errors->any())
             Swal.fire({
                 title: 'Error al registrar',
                 icon: 'error',
@@ -436,5 +448,5 @@
                 confirmButtonText: 'Cerrar'
             });
         @endif
-    </script>
+</script>
 @stop

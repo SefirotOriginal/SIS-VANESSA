@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Batch;
 use App\Models\ProductPresentation;
 use Illuminate\Http\Request;
+use PHPUnit\Event\Test\PreConditionCalledSubscriber;
 
 class BatchController extends Controller
 {
@@ -23,7 +24,13 @@ class BatchController extends Controller
 
     public function create()
     {
-        $products_presentation = ProductPresentation::with('product', 'presentation')->get();
+        // $products_presentation = ProductPresentation::with('product', 'presentation')->get();
+        $products_presentation = ProductPresentation::with([
+            'product' => function ($query) {
+                $query->withTrashed();
+            }])->whereHas('product', function ($query) {
+                $query->whereNull('deleted_at');
+            })->get();
         return view('admin.batch.create', compact('products_presentation'));
     }
 
